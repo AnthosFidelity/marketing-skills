@@ -1,0 +1,19 @@
+.DS_Store
+*.log
+*.swp
+*.swo
+*~
+
+# Editor / IDE
+.vscode/
+.idea/
+*.code-workspace
+
+# Node (only used by `npx skills` consumers, not authored here)
+node_modules/
+
+# Local env / scratch
+.env
+.env.local
+scratch/
+tmp/

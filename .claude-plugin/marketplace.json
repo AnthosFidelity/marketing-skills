@@ -1,0 +1,33 @@
+{
+  "name": "hyperfx-marketing-skills",
+  "owner": {
+    "name": "Hyper AI",
+    "url": "https://hyperfx.ai"
+  },
+  "plugins": [
+    {
+      "name": "marketing-skills",
+      "description": "Marketing skills for the Hyper MCP — paid ads, social media, SEO, AI search, competitor research, ad creative generation, email lifecycle, analytics, and operations.",
+      "version": "1.0.0",
+      "skills": [
+        "./skills/google-ads",
+        "./skills/meta-ads",
+        "./skills/meta-ads-library",
+        "./skills/amazon-ads",
+        "./skills/tiktok-ads",
+        "./skills/pinterest-ads",
+        "./skills/tiktok",
+        "./skills/instagram",
+        "./skills/linkedin",
+        "./skills/seo-research",
+        "./skills/ad-creative-generation",
+        "./skills/image-generation",
+        "./skills/video-generation",
+        "./skills/cold-email-outreach",
+        "./skills/email-lifecycle",
+        "./skills/analytics-insights",
+        "./skills/competitor-intel"
+      ]
+    }
+  ]
+}

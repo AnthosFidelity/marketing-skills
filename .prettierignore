@@ -1,0 +1,6 @@
+# Hand-formatted markdown — Prettier rewrites the `[`name`](./url)` inline-code-
+# around-link pattern into `` `[name](./url)` `` (literal backticks around the
+# brackets), which renders as broken text on GitHub instead of a link. It also
+# strips the YouTube thumbnail embed image and removes <details> blocks.
+# Skip all markdown to keep docs and skill bodies stable.
+*.md
