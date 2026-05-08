@@ -14,6 +14,8 @@ A skill is a markdown file (`SKILL.md`) with the workflows, decision rules, and 
 
 ## The Hyper MCP
 
+![Hyper MCP — 200+ integrations and built-in tools](assets/hyper-mcp.png)
+
 Create, customize, and connect your MCP at [app.hyperfx.ai/mcp](https://app.hyperfx.ai/mcp). Choose which integrations and built-in tools to include, and configure approval rules action-by-action across every one of them.
 
 What's in it:
