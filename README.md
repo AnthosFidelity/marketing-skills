@@ -88,6 +88,7 @@ That's `meta-ads` + `google-ads` + `tiktok-ads` + `ad-creative-generation` + `vi
 | **Research** | | |
 | [`seo-research`](skills/seo-research) | Keyword research, SERP and AI Overview analysis, competitor benchmarks, AI search visibility, backlinks, site audits. | HyperSEO toolkit |
 | [`competitor-intel`](skills/competitor-intel) | Research competitors end-to-end — site, social, search rank, AI-search citations, mentions — and produce battle cards, weekly digests, or board-prep updates. | Firecrawl + at least one of HyperSEO or Apify scrapers |
+| [`customer-research`](skills/customer-research) | Mine Reddit, YouTube comments, G2/Capterra, Twitter, and TikTok to surface what customers actually say — build personas, VOC quote banks, JTBD maps, and synthesis reports. | None (built-in scrapers) |
 | **Creative** | | |
 | [`ad-creative-generation`](skills/ad-creative-generation) | Generate ad copy and on-brand images for Google and Meta placements. | Firecrawl + image gen toolkit |
 | [`image-generation`](skills/image-generation) | Generate and edit images — picks the right model for text-heavy creatives, photoreal product shots, or high-res output. | Image gen toolkit |
