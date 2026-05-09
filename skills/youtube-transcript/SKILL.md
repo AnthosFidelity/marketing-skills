@@ -10,7 +10,9 @@ Fetch the full transcript of any YouTube video and turn it into whatever the use
 ## Requirements
 
 - **Hyper MCP installed.** [https://app.hyperfx.ai/mcp](https://app.hyperfx.ai/mcp)
-- No additional integrations required.
+- **YouTube toolkit enabled** at [https://app.hyperfx.ai/integrations](https://app.hyperfx.ai/integrations) — provides `youtube_transcript` and `youtube_reader`.
+
+If `youtube_transcript` is not in the tool list, stop and tell the user to enable the YouTube toolkit in Hyper.
 
 ## Two tools — pick the right one
 
