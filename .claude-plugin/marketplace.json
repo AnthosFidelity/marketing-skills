@@ -27,7 +27,8 @@
         "./skills/email-lifecycle",
         "./skills/analytics-insights",
         "./skills/competitor-intel",
-        "./skills/customer-research"
+        "./skills/customer-research",
+        "./skills/youtube-transcript"
       ]
     }
   ]
