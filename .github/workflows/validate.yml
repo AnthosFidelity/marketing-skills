@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - "skills/**"
+      - "README.md"
+      - "AGENTS.md"
       - "validate-skills.sh"
       - ".github/workflows/validate.yml"
   push:
