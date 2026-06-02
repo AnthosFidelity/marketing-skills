@@ -102,7 +102,7 @@ That's `meta-ads` + `google-ads` + `tiktok-ads` + `ad-creative-generation` + `vi
 | **Analytics** | | |
 | [`analytics-insights`](skills/analytics-insights) | Drive GA4, Google Tag Manager, Search Console, and BigQuery from chat — tracking plans, reports, conversions, container audits, BigQuery export queries. | At least one of GA4, GTM, GSC, or BigQuery |
 | **Execution** | | |
-| [`hyper-cli`](skills/hyper-cli) | Run these marketing skills through the Hyper CLI, translating raw MCP tool names into CLI aliases or raw toolkit calls. | Hyper CLI + the integrations required by the sibling skill |
+| [`hyper-cli`](skills/hyper-cli) | Run these marketing skills through the Hyper CLI (beta), translating raw MCP tool names into CLI aliases or raw toolkit calls. | Hyper CLI + the integrations required by the sibling skill |
 
 Invoke explicitly with `/google-ads`, `/cold-email-outreach`, `/seo-research`, etc. — the slash name matches the folder under `skills/`.
 
@@ -210,7 +210,7 @@ marketing-skills/
 
 Near-term skills and surfaces:
 
-- [x] `hyper-cli` — run these skills through the Hyper CLI from a terminal, cron job, or shell pipeline.
+- [x] `hyper-cli` (beta) — run these skills through the Hyper CLI from a terminal, cron job, or shell pipeline.
 - [ ] `google-ads-operator` — production Google Ads account operation and optimization.
 - [ ] `meta-account-audit` — Meta account diagnostics, spend checks, and performance recommendations.
 - [ ] `social-carousel` — carousel planning, copy, and export for social channels.
