@@ -4,13 +4,16 @@ on:
   pull_request:
     paths:
       - "skills/**"
+      - "README.md"
+      - "AGENTS.md"
       - "validate-skills.sh"
       - ".github/workflows/validate.yml"
   push:
     branches: [main]
 
 jobs:
-  validate:
+  validate-skills:
+    name: validate-skills
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

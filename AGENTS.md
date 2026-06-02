@@ -59,6 +59,12 @@ Skills are NOT tools. They are markdown instructions plus optional reference fil
 | --- | --- |
 | [`analytics-insights`](./skills/analytics-insights) | Drive Google Analytics (GA4), Google Tag Manager, Google Search Console, and BigQuery from chat — tracking-plan design, key-event (conversion) management, custom dimensions / metrics, GA4 reports, GTM container audits, GSC search performance, and queries against the GA4 BigQuery export. Ships with three references under `references/` (GA4 tracking plan, GTM audit, BigQuery GA4 export). |
 
+### Execution
+
+| Skill | What it does |
+| --- | --- |
+| [`hyper-cli`](./skills/hyper-cli) | Bridge skill for running the marketing skills through `hyperai`, including how to translate raw MCP tool names into CLI aliases or raw toolkit calls. |
+
 ## Adding or editing a skill
 
 1. Each skill lives in `skills/<skill-name>/SKILL.md` with YAML frontmatter (`name`, `description`).
@@ -73,6 +79,7 @@ See [`CONTRIBUTING.md`](./CONTRIBUTING.md) for details.
 ## Repo conventions
 
 - **Tool names are referenced verbatim from the Hyper MCP.** When citing or editing a tool name in a skill, verify it against the live MCP catalog (the `<tool-name>.json` schema files exposed by the connected MCP server). The MCP descriptor wins over codebase function names, prior skill content, or memory.
+- **CLI aliases are a separate surface.** Marketing skills usually name raw MCP tools like `gmail_send_message`; the Hyper CLI may expose that as `gmail messages send`. Use `hyper-cli` for CLI execution guidance and always inspect the live CLI schema before calling.
 - **Allowed Hyper URLs in skill bodies:** only `app.hyperfx.ai/mcp` and `app.hyperfx.ai/integrations`. No other Hyper URLs.
 - **No internal infra references.** No `hyper_cache_*` table names hardcoded into skills (the cache table name is workspace-specific — instruct agents to read it from the tool description or error `suggestion` field instead). No internal filesystem paths. No template ids that aren't part of the public MCP surface.
 - **Conditional integrations.** Some tools only appear when the underlying integration is enabled in the user's Hyper workspace (LinkedIn scraper is the canonical example). Skills citing such tools must mark them conditional and gracefully skip the affected step rather than failing the whole workflow.

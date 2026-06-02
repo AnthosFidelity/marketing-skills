@@ -43,7 +43,7 @@ Auto-detects your agent and drops the skills in the right directory. Then ask yo
 # install one
 npx skills add hyperfx-ai/marketing-skills --skill google-ads
 
-# install all 19
+# install all 20
 npx skills add hyperfx-ai/marketing-skills --all
 ```
 
@@ -101,6 +101,8 @@ That's `meta-ads` + `google-ads` + `tiktok-ads` + `ad-creative-generation` + `vi
 | [`email-lifecycle`](skills/email-lifecycle) | Build welcome, nurture, re-engagement, win-back, and abandoned-cart email programs. | At least one of Klaviyo, Resend, Beehiiv, or Gmail |
 | **Analytics** | | |
 | [`analytics-insights`](skills/analytics-insights) | Drive GA4, Google Tag Manager, Search Console, and BigQuery from chat — tracking plans, reports, conversions, container audits, BigQuery export queries. | At least one of GA4, GTM, GSC, or BigQuery |
+| **Execution** | | |
+| [`hyper-cli`](skills/hyper-cli) | Run these marketing skills through the Hyper CLI (beta), translating raw MCP tool names into CLI aliases or raw toolkit calls. | Hyper CLI + the integrations required by the sibling skill |
 
 Invoke explicitly with `/google-ads`, `/cold-email-outreach`, `/seo-research`, etc. — the slash name matches the folder under `skills/`.
 
@@ -206,16 +208,22 @@ marketing-skills/
 
 ## Roadmap
 
-**Hyper CLI** — runs these skills against the Hyper MCP from a terminal, no agent host required. Drop a skill into a shell pipeline, run it on a cron schedule, or chain skills together in scripts. Same skill files, same MCP, same guardrails.
+Near-term skills and surfaces:
 
-**More skills** — porting over from the Hyper MCP surface:
-
-- **Paid**: `google-ads-operator`, `meta-account-audit`
-- **Social media**: `social-carousel`
-- **Research**: `cmo`, `reddit-research`
-- **Creative**: `slide-generation`, `pdf-generation`
-- **Operations**: `copywriting`, `lead-generation`, `crm-revops`, `google-sheets-writing`, `gmail-email-management`
-- **Design**: `figma`
+- [x] `hyper-cli` (beta) — run these skills through the Hyper CLI from a terminal, cron job, or shell pipeline.
+- [ ] `google-ads-operator` — production Google Ads account operation and optimization.
+- [ ] `meta-account-audit` — Meta account diagnostics, spend checks, and performance recommendations.
+- [ ] `social-carousel` — carousel planning, copy, and export for social channels.
+- [ ] `cmo` — executive marketing reporting and cross-channel performance summaries.
+- [ ] `reddit-research` — focused Reddit research workflows for VOC, market maps, and positioning.
+- [ ] `slide-generation` — turn research, reports, and campaign plans into presentation decks.
+- [ ] `pdf-generation` — generate polished marketing reports and briefs.
+- [ ] `copywriting` — general-purpose marketing copy workflows.
+- [ ] `lead-generation` — prospect sourcing, enrichment, scoring, and handoff.
+- [ ] `crm-revops` — CRM hygiene, routing, attribution, and pipeline operations.
+- [ ] `google-sheets-writing` — structured spreadsheet creation and reporting.
+- [ ] `gmail-email-management` — inbox triage, labeling, reply drafting, and operational email workflows.
+- [ ] `figma` — design workflow support for ad creative, landing pages, and campaign assets.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) to contribute a skill.
 
