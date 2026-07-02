@@ -43,7 +43,7 @@ Auto-detects your agent and drops the skills in the right directory. Then ask yo
 # install one
 npx skills add hyperfx-ai/marketing-skills --skill google-ads
 
-# install all 20
+# install all 24
 npx skills add hyperfx-ai/marketing-skills --all
 ```
 
@@ -77,8 +77,8 @@ That's `meta-ads` + `google-ads` + `tiktok-ads` + `ad-creative-generation` + `vi
 | Skill | What it does | Required integrations |
 |---|---|---|
 | **Paid ads** | | |
-| [`google-ads`](skills/google-ads) | Plan and launch Google Ads campaigns — Search, Display, and Performance Max. | Google Ads |
-| [`meta-ads`](skills/meta-ads) | Plan and launch Meta ad campaigns across Facebook and Instagram. | Meta Business, Firecrawl |
+| [`google-ads`](skills/google-ads) | Plan and launch Google Ads campaigns — Search, Display, and Performance Max — and build GAQL-backed reports and dashboards. | Google Ads |
+| [`meta-ads`](skills/meta-ads) | Plan and launch Meta ad campaigns across Facebook and Instagram; audit existing accounts. | Meta Business, Firecrawl |
 | [`meta-ads-library`](skills/meta-ads-library) | Research competitor ads in the Meta Ads Library. | Apify |
 | [`amazon-ads`](skills/amazon-ads) | Plan and launch Amazon Sponsored Products campaigns. | Amazon Ads |
 | [`tiktok-ads`](skills/tiktok-ads) | Plan and launch TikTok ad campaigns across all objectives. | TikTok Marketing |
