@@ -1,6 +1,6 @@
 ---
 name: meta-ads
-description: Plan and create Meta (Facebook + Instagram) advertising campaigns end-to-end via the Hyper MCP, defaulting to Advantage+ automation. Use when the user wants to launch Meta ads, Facebook ads, Instagram ads, Advantage+ campaigns, carousel ads, dynamic creative ads, set up Meta conversion tracking, analyze performance, or build Meta performance dashboards. Also triggers on phrases like meta campaign, facebook campaign, advantage+, or meta blueprint.
+description: Plan and create Meta (Facebook + Instagram) advertising campaigns end-to-end via the Hyper MCP, defaulting to Advantage+ automation. Use when the user wants to launch Meta ads, Facebook ads, Instagram ads, Advantage+ campaigns, carousel ads, dynamic creative ads, set up Meta conversion tracking, analyze performance, audit a Meta ads account, or build Meta performance dashboards. Also triggers on phrases like meta campaign, facebook campaign, advantage+, meta account audit, or meta blueprint.
 ---
 
 # Meta Ads
@@ -37,7 +37,7 @@ Use the **exact tool name from your connected tool list**. Canonical names are `
 | Tracking assets | `meta_ads_ad_pixels_list`, `meta_ads_ad_pixels_get`, `meta_ads_custom_audiences_list`, `meta_ads_lookalike_audiences_list`, `meta_ads_targeting_search` |
 | Step-by-step creation (preferred) | `meta_ads_campaigns_create`, `meta_ads_ad_sets_create`, `meta_ads_create`, `meta_ads_ad_images_upload`, `meta_ads_ad_creatives_create` |
 | Blueprint path (avoid — see rule below) | `meta_ads_blueprints_preview`, `meta_ads_campaign_blueprints_create` |
-| Read & preview | `meta_ads_campaigns_get`, `meta_ads_ad_sets_list`, `meta_ads_list`, `meta_ads_get`, `meta_ads_ad_previews_get` |
+| Read & preview | `meta_ads_campaigns_get`, `meta_ads_campaigns_search`, `meta_ads_ad_sets_list`, `meta_ads_list`, `meta_ads_get`, `meta_ads_ad_previews_get` |
 | Insights & dashboards | `meta_ads_insights_get`, `meta_business_sync`, `hyper_data_list_dashboard_templates`, `hyper_data_build_dashboard`, `database_query` |
 | Launch & edits | `meta_ads_campaigns_activate`, `meta_ads_campaigns_update`, `meta_ads_ad_sets_update`, `meta_ads_update` |
 | Site research | `firecrawl_extract_branding`, `firecrawl_screenshot` |
@@ -94,6 +94,7 @@ Every task follows this sequence. Do not skip steps.
 | Create an app promotion campaign | [references/discovery.md](references/discovery.md) → [references/campaigns/app-promotion.md](references/campaigns/app-promotion.md) |
 | Create a campaign (any objective) | [references/discovery.md](references/discovery.md) → the matching `references/campaigns/*.md` above, then build step by step |
 | Analyze performance / query insights | [references/analytics.md](references/analytics.md) |
+| Audit an account / find optimization opportunities | [references/account-audit.md](references/account-audit.md) |
 | Build a Meta dashboard or data app | [references/analytics.md](references/analytics.md) → [references/dashboards.md](references/dashboards.md) |
 | Analyze performance, then create a campaign | [references/analytics.md](references/analytics.md) → [references/discovery.md](references/discovery.md) → relevant campaign file |
 | Build a funnel / multiple campaigns at once (TOF/MOF/BOF) | [references/multi-campaign-funnel.md](references/multi-campaign-funnel.md) → [references/discovery.md](references/discovery.md) → per-tier campaign files |
