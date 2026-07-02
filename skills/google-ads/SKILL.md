@@ -1,11 +1,11 @@
 ---
 name: google-ads
-description: Plan and create new Google Ads campaigns end-to-end via the Hyper MCP. Use when the user wants to launch Search, Display, or Performance Max campaigns, or mentions Google Ads, AdWords, search ads, display ads, Performance Max, PMax, PPC, Google campaigns, Google blueprint, search term reports, negative keywords, or manager accounts (MCC). For ongoing optimization, search-term cleanup, conversion diagnosis, or restructuring existing accounts, defer to a future `google-ads-operator` sibling skill.
+description: Plan and create new Google Ads campaigns and report on existing accounts via the Hyper MCP. Use when the user wants to launch Search, Display, or Performance Max campaigns, build Google Ads reports or dashboards, diagnose conversion tracking, or mentions Google Ads, AdWords, search ads, display ads, Performance Max, PMax, PPC, Google campaigns, Google blueprint, search term reports, budget analysis, conversion funnels, negative keywords, or manager accounts (MCC).
 ---
 
 # Google Ads
 
-Strategic guide for building new Google Ads campaigns. Research first, consult intelligently, validate everything, and use the blueprint flow for controlled creation.
+Strategic guide for building new Google Ads campaigns and reporting on existing accounts. Research first, consult intelligently, validate everything, and use the blueprint flow for controlled creation. Reporting is GAQL-backed and evidence-first — dashboards are optional presentation surfaces.
 
 ## Requirements
 
@@ -16,7 +16,7 @@ If `google_ads_list_accounts` is not in the tool list, stop and tell the user to
 
 ## Out of scope
 
-- **Ongoing optimization** (search-term cleanup, bid adjustments, ad testing, restructuring existing campaigns) → defer to a future `google-ads-operator` skill.
+- **Live optimization mutations** (bid adjustments, pausing keywords, restructuring existing campaigns). Reports may *recommend* these changes; applying them needs explicit per-change user approval.
 - **Creative generation** (headlines, descriptions, images) → [`ad-creative-generation`](../ad-creative-generation).
 - **Cross-platform campaign launches** → use this skill for Google, then invoke `meta-ads` / `tiktok-ads` separately.
 
@@ -30,6 +30,7 @@ If `google_ads_list_accounts` is not in the tool list, stop and tell the user to
 | `google_ads_list_assets`, `google_ads_upload_image_asset` | Manage image assets for Display / PMax. |
 | `google_ads_preview_blueprint`, `google_ads_create_from_blueprint` | Validate + create Search/Display campaigns. |
 | `google_ads_preview_pmax_blueprint`, `google_ads_create_from_pmax_blueprint` | Validate + create Performance Max campaigns. |
+| `hyper_data_list_dashboard_templates`, `hyper_data_build_dashboard`, `hyper_data_refresh_dashboard`, `hyper_data_search_ui_components` | Optional dashboards / data apps for reports. |
 
 ## Rules that must never be forgotten
 
@@ -67,6 +68,12 @@ Full workflow: Initial Setup → Research (site + GAQL + market) → Analyze (go
 | Create a Search or Display campaign | [references/discovery.md](references/discovery.md) → [references/campaigns/search-display.md](references/campaigns/search-display.md) |
 | Create a Performance Max campaign | [references/discovery.md](references/discovery.md) → [references/campaigns/pmax.md](references/campaigns/pmax.md) |
 | Add an asset group to an existing PMax campaign | [references/campaigns/pmax.md](references/campaigns/pmax.md) |
-| Run a search term report / GAQL query / analyze performance | [references/reporting.md](references/reporting.md) |
+| Run a report / GAQL query / analyze performance (any kind) | [references/reporting.md](references/reporting.md) → the matching `references/reports/*.md` recipe |
+| Account health snapshot / "how is the account doing?" | [references/reporting.md](references/reporting.md) → [references/reports/account-overview.md](references/reports/account-overview.md) |
+| Diagnose conversion tracking | [references/reporting.md](references/reporting.md) → [references/reports/conversion-tracking.md](references/reports/conversion-tracking.md) |
+| Find wasteful search terms / negative keyword candidates | [references/reporting.md](references/reporting.md) → [references/reports/search-terms-waste.md](references/reports/search-terms-waste.md) |
+| Build a Google Ads dashboard or data app | [references/reporting.md](references/reporting.md) → matching report recipe's dashboard section |
 | Work across an MCC / many sub-accounts | [references/mcc.md](references/mcc.md) → [references/reporting.md](references/reporting.md) |
 | Goal not yet clear | [references/discovery.md](references/discovery.md) — discovery clarifies the goal |
+
+Reporting responses follow [references/report-template.md](references/report-template.md); keep claims tied to queried data per [references/heuristics.md](references/heuristics.md).
