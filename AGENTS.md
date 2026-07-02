@@ -20,6 +20,9 @@ Skills are NOT tools. They are markdown instructions plus optional reference fil
 | [`amazon-ads`](./skills/amazon-ads) | Plan and create Amazon Sponsored Products campaigns with strategic targeting and budget rules. |
 | [`tiktok-ads`](./skills/tiktok-ads) | Plan and create TikTok Ads (Traffic, Reach, Conversions, App Promotion, Video View) with strict objective-specific parameter validation. |
 | [`pinterest-ads`](./skills/pinterest-ads) | Plan and create Pinterest Ads with microcurrency budgeting, CBO rules, and conversion-tag handling. |
+| [`reddit-ads`](./skills/reddit-ads) | Plan and create Reddit Ads campaigns — promoted posts, subreddit / interest / geo targeting, audiences, Reddit pixel conversion tracking, and reporting, with micro-currency budgets. |
+| [`snapchat-ads`](./skills/snapchat-ads) | Plan and create Snapchat Ads campaigns — ad squads, media upload, creatives, Snap Pixel conversion tracking, and reporting, with micro-currency budgets and JSON-Patch updates. |
+| [`openai-ads`](./skills/openai-ads) | Plan and manage OpenAI Ads (ChatGPT ads) — chat_card and product-feed creatives, geo targeting, custom audiences, conversion tracking, and insights. |
 
 ### Organic social publishing
 
@@ -45,6 +48,7 @@ Skills are NOT tools. They are markdown instructions plus optional reference fil
 | [`ad-creative-generation`](./skills/ad-creative-generation) | End-to-end ad creative pipeline — brand extraction (Firecrawl) → ad copy variants → on-brand images for Google RSAs, Display, Performance Max, Meta feed / story / carousel, and other paid placements. Ships with four reference workflows under `references/`. |
 | [`image-generation`](./skills/image-generation) | Tool-selection guide for the bundled image models — OpenAI (`gpt-image-2`), Nano Banana (Gemini 3 Pro / 2.5 Flash), Seedream (ByteDance via fal.ai) — for ad creatives, branded compositions, photoreal product shots, image-to-image edits, and high-resolution output. |
 | [`video-generation`](./skills/video-generation) | End-to-end AI video — text-to-video / image-to-video (Sora, Veo, Seedance), scene chaining, video analysis, transcription, subtitles, TikTok / karaoke captions, voiceover (TTS), audio mixing, clipping, stitching, and text overlays. |
+| [`blog-generation`](./skills/blog-generation) | Generate one excellent, on-brand blog post per run — a stateful engine (reads a brand strategy doc, never repeats a topic) built to rank on Google and get cited by AI search. Firecrawl / HyperSEO / Search Console recommended. |
 
 ### Outbound & lifecycle
 

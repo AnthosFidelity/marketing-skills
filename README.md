@@ -83,6 +83,9 @@ That's `meta-ads` + `google-ads` + `tiktok-ads` + `ad-creative-generation` + `vi
 | [`amazon-ads`](skills/amazon-ads) | Plan and launch Amazon Sponsored Products campaigns. | Amazon Ads |
 | [`tiktok-ads`](skills/tiktok-ads) | Plan and launch TikTok ad campaigns across all objectives. | TikTok Marketing |
 | [`pinterest-ads`](skills/pinterest-ads) | Plan and launch Pinterest ad campaigns across all objectives. | Pinterest Ads |
+| [`reddit-ads`](skills/reddit-ads) | Plan and launch Reddit ad campaigns — promoted posts, subreddit targeting, pixels, reporting. | Reddit Ads |
+| [`snapchat-ads`](skills/snapchat-ads) | Plan and launch Snapchat ad campaigns — ad squads, creatives, Snap Pixel, reporting. | Snapchat Ads |
+| [`openai-ads`](skills/openai-ads) | Plan and launch OpenAI Ads (ChatGPT ads) — chat card and product-feed creatives, audiences, insights. | OpenAI Ads (API key) |
 | **Social media** | | |
 | [`tiktok`](skills/tiktok) | Publish videos, photos, and carousels to TikTok. | TikTok (Login Kit) |
 | [`instagram`](skills/instagram) | Publish posts, Reels, Stories, and carousels. Moderate comments, send DMs, pull insights. | Instagram (Business Login) |
@@ -96,6 +99,7 @@ That's `meta-ads` + `google-ads` + `tiktok-ads` + `ad-creative-generation` + `vi
 | [`ad-creative-generation`](skills/ad-creative-generation) | Generate ad copy and on-brand images for Google and Meta placements. | Firecrawl + image gen toolkit |
 | [`image-generation`](skills/image-generation) | Generate and edit images — picks the right model for text-heavy creatives, photoreal product shots, or high-res output. | Image gen toolkit |
 | [`video-generation`](skills/video-generation) | Generate AI video and prep it for distribution — text/image-to-video, captions, voiceover, stitching, overlays. | Video gen toolkit |
+| [`blog-generation`](skills/blog-generation) | Generate one excellent, on-brand blog post per run — a stateful engine that never repeats a topic, built for SEO and AI-search citations. | Firecrawl, HyperSEO, and Google Search Console recommended |
 | **Outbound & lifecycle** | | |
 | [`cold-email-outreach`](skills/cold-email-outreach) | Run end-to-end B2B cold outreach — prospect, enrich, personalize, send, follow up, route replies. | Gmail + Apollo (Firecrawl + LinkedIn scraper bundled) |
 | [`email-lifecycle`](skills/email-lifecycle) | Build welcome, nurture, re-engagement, win-back, and abandoned-cart email programs. | At least one of Klaviyo, Resend, Beehiiv, or Gmail |
