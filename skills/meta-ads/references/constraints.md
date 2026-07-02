@@ -192,6 +192,25 @@ These objectives **require** `promoted_object` on the ad set. Omitting it causes
 | OUTCOME_AWARENESS | Not required | — |
 | OUTCOME_ENGAGEMENT | Optional | `{"page_id": "PAGE_ID"}` |
 
+> **App promotion — the creative link must match `object_store_url`.** For OUTCOME_APP_PROMOTION, the ad's creative CTA destination (`link_data.link`, and `call_to_action.value.link` if set) must equal the ad set's `promoted_object.object_store_url` **exactly**, or Meta rejects the ad with *"Object store URL does not match promoted object"* (code 100). When you didn't just author the ad set yourself, call `meta_ads_ad_sets_get` and copy `promoted_object.object_store_url` verbatim — never guess the store URL.
+
+### Attribution window (`attribution_spec`)
+
+For conversion ad sets, set the attribution window explicitly with `attribution_spec` rather than relying on Meta's default — the window defines what counts as a conversion and is how the advertiser measures cost-per-result. It's an ad-set field (inside `input_data` on `meta_ads_ad_sets_create`), and it reads back on `meta_ads_ad_sets_get`.
+
+```python
+# 1-day click (common for app installs / FTD / direct-response)
+attribution_spec=[{"event_type": "CLICK_THROUGH", "window_days": 1}]
+
+# 7-day click + 1-day view (common for web registration / e-commerce)
+attribution_spec=[
+    {"event_type": "CLICK_THROUGH", "window_days": 7},
+    {"event_type": "VIEW_THROUGH", "window_days": 1},
+]
+```
+
+Match the window to the play — don't mix windows across ad sets you intend to compare, or the results aren't comparable.
+
 ---
 
 ## 10. Never change campaign objective or optimization goal without explicit user approval

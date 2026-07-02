@@ -59,11 +59,11 @@ If `instagram_get_me` is not in the tool list, stop and tell the user to enable 
 >
 > Hyper-hosted CDN URLs are automatically resized and re-signed for Meta when needed, so just hand them through verbatim. A single-character corruption in a presigned signature causes Meta to return a misleading `9004 / 2207052: Only photo or video can be accepted as media type` error.
 
-> **IMPORTANT**: Always call `instagram_get_me` first to get the user's IG user ID. Most endpoints require this ID.
+> **IMPORTANT**: Most tools act on the authenticated account automatically — you do NOT need to pass a `user_id`. The toolkit resolves it from the access token internally. Only call `instagram_get_me` when you actually need profile details (username, follower counts, etc.) to display to the user. Use `instagram_get_user(user_id=...)` only when looking up a *different* account.
 
-## Phase 1: Account Setup
+## Phase 1: Account Lookup (optional)
 
-### Get the connected account
+### Get the connected account's profile
 
 ```python
 instagram_get_me()
@@ -71,7 +71,7 @@ instagram_get_me()
 
 Returns: `user_id`, `username`, `name`, `account_type`, `profile_picture_url`, `followers_count`, `follows_count`, `media_count`, `biography`, `website`.
 
-Store the `user_id` — it's required for most subsequent calls.
+You do not need to thread the `user_id` into other tool calls — they resolve it automatically.
 
 ## Phase 2: Content Publishing
 
@@ -86,7 +86,6 @@ Store the `user_id` — it's required for most subsequent calls.
 
 ```python
 instagram_create_photo_container(
-    user_id="<user_id>",
     image_url="https://example.com/photo.jpg",   # Public JPEG URL, max 8MB
     caption="Your caption here #hashtag",
     alt_text="Accessibility description",
@@ -94,7 +93,6 @@ instagram_create_photo_container(
 # Returns container ID
 
 instagram_publish_media(
-    user_id="<user_id>",
     creation_id="<container_id>",
 )
 ```
@@ -103,7 +101,6 @@ instagram_publish_media(
 
 ```python
 instagram_create_reel_container(
-    user_id="<user_id>",
     video_url="https://example.com/video.mp4",   # Public MP4/MOV, max 300MB, 3s-15min
     caption="Reel caption #reels",
     cover_url="https://example.com/cover.jpg",   # Optional cover image
@@ -114,7 +111,7 @@ instagram_create_reel_container(
 instagram_check_container_status(container_id="<container_id>")
 # Wait until status_code == "FINISHED", poll once per minute, max 5 minutes
 
-instagram_publish_media(user_id="<user_id>", creation_id="<container_id>")
+instagram_publish_media(creation_id="<container_id>")
 ```
 
 ### Story (24-hour expiry)
@@ -122,7 +119,7 @@ instagram_publish_media(user_id="<user_id>", creation_id="<container_id>")
 > **Note:** Story *publishing* is not yet supported by this MCP integration. To read currently active stories use:
 >
 > ```python
-> instagram_list_stories(user_id="<user_id>")
+> instagram_list_stories()
 > ```
 >
 > If the user asks to post a story, inform them this capability is not yet available and suggest posting a Reel with `share_to_feed=True` as an alternative.
@@ -132,7 +129,6 @@ instagram_publish_media(user_id="<user_id>", creation_id="<container_id>")
 ```python
 # Step 1: create child containers (each with is_carousel_item=True for photos)
 instagram_create_photo_container(
-    user_id="<user_id>",
     image_url="https://example.com/photo1.jpg",
     is_carousel_item=True,
 )
@@ -140,13 +136,12 @@ instagram_create_photo_container(
 
 # Step 2: create the carousel container with child IDs
 instagram_create_carousel_container(
-    user_id="<user_id>",
     children=["<child_id_1>", "<child_id_2>", "<child_id_3>"],
     caption="Carousel caption",
 )
 
 # Step 3: publish
-instagram_publish_media(user_id="<user_id>", creation_id="<carousel_container_id>")
+instagram_publish_media(creation_id="<carousel_container_id>")
 ```
 
 ### Content limits
@@ -202,7 +197,7 @@ instagram_toggle_comments(media_id="<media_id>", comment_enabled=False)
 ### List conversations
 
 ```python
-instagram_list_conversations(user_id="<user_id>")
+instagram_list_conversations()
 ```
 
 ### Read messages
@@ -220,14 +215,12 @@ instagram_get_message(message_id="<message_id>")
 ```python
 # Text message
 instagram_send_message(
-    user_id="<user_id>",
     recipient_id="<recipient_igsid>",   # From the message's 'from' field
     text="Thanks for reaching out!",
 )
 
 # Media attachment (image, video, audio, PDF)
 instagram_send_media_message(
-    user_id="<user_id>",
     recipient_id="<recipient_igsid>",
     media_type="image",                 # image, video, audio, or file
     media_url="https://example.com/photo.jpg",
@@ -235,14 +228,12 @@ instagram_send_media_message(
 
 # Share a published post via DM
 instagram_send_post_message(
-    user_id="<user_id>",
     recipient_id="<recipient_igsid>",
     post_id="<media_id>",               # Must be your own post
 )
 
 # React to a message
 instagram_react_to_message(
-    user_id="<user_id>",
     recipient_id="<recipient_igsid>",
     message_id="<message_id>",
     reaction="love",
@@ -262,7 +253,6 @@ instagram_react_to_message(
 
 ```python
 instagram_get_account_insights(
-    user_id="<user_id>",
     metric=["reach", "profile_views", "follower_count", "accounts_engaged", "total_interactions"],
     period="week",
 )
@@ -328,7 +318,7 @@ instagram_get_media_insights(
 
 ```python
 # List recent posts (up to 10K)
-instagram_list_media(user_id="<user_id>", limit=25)
+instagram_list_media(limit=25)
 
 # Get details of a specific post
 instagram_get_media(media_id="<media_id>")
@@ -337,8 +327,8 @@ instagram_get_media(media_id="<media_id>")
 instagram_get_album_children(media_id="<carousel_media_id>")
 
 # List active stories (24h window)
-instagram_list_stories(user_id="<user_id>")
+instagram_list_stories()
 
 # Get tagged media
-instagram_get_tagged_media(user_id="<user_id>")
+instagram_get_tagged_media()
 ```

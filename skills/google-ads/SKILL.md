@@ -214,6 +214,16 @@ For **Display** campaigns, set `"advertising_channel_type": "DISPLAY"` and use `
 
 > **CRITICAL (PMax)**: All three image asset types are REQUIRED with correct aspect ratios. The preview tool validates ratios before creation.
 
+### Standalone PMax asset group (existing campaign)
+
+Use `google_ads_asset_groups_create` (legacy name `google_ads_create_asset_group`) to add an asset group to an **existing** Performance Max campaign without running the full blueprint flow.
+
+Required: `customer_id`, `campaign_id`, `final_urls`, text assets (`headlines`, `long_headlines`, `descriptions`, `business_name`), and all three image asset ID lists.
+
+### Campaign dates (API v24)
+
+Optional `start_date` / `end_date` on blueprints and campaign tools use `YYYY-MM-DD`. The backend encodes them to v24 wire fields `startDateTime` / `endDateTime` (`yyyy-MM-dd HH:mm:ss`). Omit both dates to let Google set schedule defaults.
+
 ### Blueprint Features
 
 | Feature | Details |

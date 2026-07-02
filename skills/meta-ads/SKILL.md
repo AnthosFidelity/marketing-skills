@@ -56,6 +56,12 @@ CLI users: translate tool names with the `hyper-cli` skill (`hyperai search "<to
 
 > **BUILD STEP BY STEP, NOT VIA BLUEPRINT**: Create campaigns with the individual tools — `meta_ads_campaigns_create` → `meta_ads_ad_sets_create` → `meta_ads_ad_creatives_create` → `meta_ads_create`, capturing each id from the previous response. Do NOT use the blueprint tools (`meta_ads_blueprints_preview` / `meta_ads_campaign_blueprints_create`). The step-by-step tools validate each object against its campaign objective (e.g. they enforce the correct `optimization_goal` and `promoted_object`), so mistakes are caught up front instead of silently producing an invalid campaign.
 
+> **REGULATED ADVERTISERS NEED `special_ad_categories`**: For gambling, financial, housing, employment, credit, or political advertisers, declare the category on `meta_ads_campaigns_create` (e.g. `special_ad_categories=["ONLINE_GAMBLING_AND_GAMING"]`). The blueprint cannot set this — another reason regulated builds use the step-by-step path.
+
+> **EU-TARGETED AD SETS NEED DSA FIELDS**: If an ad set targets the EU, set `dsa_beneficiary` and `dsa_payor` on `meta_ads_ad_sets_create` (who benefits from / pays for the ad) — required under the EU Digital Services Act, or delivery is restricted.
+
+> **UTMs ON EVERY DESTINATION AD (`url_tags`)**: Set `url_tags` (UTM params, e.g. `utm_source=meta&utm_medium=paid&utm_campaign=...`) on every creative that drives to a destination — downstream measurement (e.g. AppsFlyer + a data warehouse) stitches on these, so an ad without UTMs is effectively unmeasurable. Use the advertiser's canonical template; if you don't have one, ask rather than ship untracked.
+
 See [references/constraints.md](references/constraints.md) for the full constraint set.
 
 > **All reference files live in `references/`.** Read them at `references/<file>` (e.g. `references/discovery.md`). They are not in the same directory as this SKILL.md.
