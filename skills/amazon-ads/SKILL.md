@@ -14,6 +14,11 @@ Strategic guide for managing Amazon Ads Sponsored Products campaigns. Research f
 
 If `amazon_ads_list_profiles` is not in the tool list, stop and tell the user to enable Hyper MCP and connect Amazon Ads.
 
+## Out of scope — defer to other skills
+
+- **Creative generation** (product imagery, copy) → [`ad-creative-generation`](../ad-creative-generation) / [`image-generation`](../image-generation).
+- **Cross-platform campaign launches** → use this skill for Amazon, then invoke `meta-ads` / `google-ads` separately.
+
 ## Tool surface
 
 | Tool | Purpose |

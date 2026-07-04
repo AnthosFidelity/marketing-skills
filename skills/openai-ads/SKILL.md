@@ -15,6 +15,11 @@ through `https://api.ads.openai.com/v1`.
 
 If `openai_ads_ad_accounts_get` is not in the tool list, stop and tell the user to enable Hyper MCP and connect OpenAI Ads. After connecting, `openai_ads_health_check()` verifies the key — if `connected=false`, the API key is missing, invalid, or expired.
 
+## Out of scope — defer to other skills
+
+- **Creative generation** (ad imagery, copy) → [`ad-creative-generation`](../ad-creative-generation) / [`image-generation`](../image-generation).
+- **Cross-platform campaign launches** → use this skill for OpenAI Ads, then invoke `meta-ads` / `google-ads` separately.
+
 ## Critical Rules
 
 > **CRITICAL**: Auth is bearer API-key auth, not OAuth. One Ads API key is
@@ -44,6 +49,20 @@ If `openai_ads_ad_accounts_get` is not in the tool list, stop and tell the user 
 
 > **IMPORTANT**: Campaign `bidding_type` can be `impressions` or `clicks`.
 > Ad group `billing_event_type` can be `impression` or `click`.
+
+## Tool surface
+
+| Job | Tools |
+| --- | --- |
+| Account | `openai_ads_ad_accounts_get`, `openai_ads_update_ad_account`, `openai_ads_activate_ad_account`, `openai_ads_pause_ad_account`, `openai_ads_health_check` |
+| Campaigns | `openai_ads_campaigns_create`, `openai_ads_campaigns_get`, `openai_ads_campaigns_list`, `openai_ads_campaigns_update`, `openai_ads_campaigns_pause`, `openai_ads_campaigns_activate`, `openai_ads_campaigns_archive` |
+| Ad groups | `openai_ads_ad_groups_create`, `openai_ads_ad_groups_get`, `openai_ads_ad_groups_list`, `openai_ads_ad_groups_update`, `openai_ads_ad_groups_pause`, `openai_ads_ad_groups_activate`, `openai_ads_ad_groups_archive` |
+| Ads | `openai_ads_create`, `openai_ads_get`, `openai_ads_list`, `openai_ads_update`, `openai_ads_pause`, `openai_ads_activate`, `openai_ads_archive` |
+| Images & targeting | `openai_ads_images_upload`, `openai_ads_search_geo_locations` |
+| Audiences | `openai_ads_create_custom_audience`, `openai_ads_create_custom_audience_upload`, `openai_ads_get_custom_audience`, `openai_ads_list_custom_audiences`, `openai_ads_archive_custom_audience` |
+| Conversions | `openai_ads_create_conversion_pixel`, `openai_ads_create_conversion_api_key`, `openai_ads_create_conversion_event_setting`, `openai_ads_list_conversion_event_settings`, `openai_ads_get_conversion_insights` |
+| Insights | `openai_ads_account_insights_get`, `openai_ads_campaign_insights_get`, `openai_ads_ad_group_insights_get`, `openai_ads_insights_get` |
+| Cache snapshot | `openai_ads_cache`, `openai_ads_caches_get`, `openai_ads_caches_refresh` |
 
 ## Phase 1: Account Discovery
 

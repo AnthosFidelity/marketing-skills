@@ -14,6 +14,11 @@ Strategic guide for managing Snapchat advertising via the Snapchat Marketing API
 
 If `snapchat_ads_list_organizations` is not in the tool list, stop and tell the user to enable Hyper MCP and connect Snapchat Ads. Creating ad squads or serving ads also requires an **active funding source** on the ad account — campaigns, media, and creatives can be created without one.
 
+## Out of scope — defer to other skills
+
+- **Creative generation** (ad copy, images, video) → [`ad-creative-generation`](../ad-creative-generation) / [`video-generation`](../video-generation).
+- **Cross-platform campaign launches** → use this skill for Snapchat, then invoke `meta-ads` / `tiktok-ads` separately.
+
 ## Critical Rules
 
 > **CRITICAL**: All budgets and bids are in **micro-currency**. $1.00 = 1,000,000 micros. $50/day = `50000000`. Never pass dollar amounts directly. Minimum campaign daily budget / lifetime spend cap is **$20** (`20000000`).

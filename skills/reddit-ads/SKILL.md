@@ -14,6 +14,12 @@ Strategic guide for managing Reddit advertising via the Reddit Ads API v3. The t
 
 If `reddit_ads_get_me` / `reddit_ads_list_businesses` is not in the tool list, stop and tell the user to enable Hyper MCP and connect Reddit Ads. Serving ads also requires an active **funding instrument** on the ad account — campaigns and ad groups can be created without one, but the account must be funded for ads to run.
 
+## Out of scope — defer to other skills
+
+- **Organic Reddit research** (mining subreddit discussions, pain points, voice-of-customer) → [`customer-research`](../customer-research).
+- **Creative generation** (ad copy, images) → [`ad-creative-generation`](../ad-creative-generation).
+- **Cross-platform campaign launches** → use this skill for Reddit, then invoke `meta-ads` / `google-ads` / `tiktok-ads` separately.
+
 ## Critical Rules
 
 > **CRITICAL**: All budgets and bids are in **micro-currency**. $1.00 = 1,000,000 micros. A $50/day budget is `goal_value=50000000`; a $0.50 CPC is `bid_value=500000`. Never pass dollar amounts directly.
