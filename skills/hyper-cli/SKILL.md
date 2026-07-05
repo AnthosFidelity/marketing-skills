@@ -7,7 +7,7 @@ description: Use the Hyper CLI to run Hyper marketing skills from a terminal. Us
 
 Use `hyperai` to run Hyper tools from a terminal. This skill is a bridge for using the marketing skills in this repo through the CLI.
 
-Marketing skills usually name the MCP/raw tools, such as `gmail_send_message` or `meta_business_list_ad_accounts`. The CLI also exposes friendly aliases, such as `gmail messages send` or `meta-ads ad-accounts list`. Pick one surface per call.
+Marketing skills usually name the MCP/raw tools, such as `gmail_send_message` or `meta_ads_ad_accounts_list`. The CLI also exposes friendly aliases, such as `gmail messages send` or `meta-ads ad-accounts list`. Pick one surface per call.
 
 ## Requirements
 

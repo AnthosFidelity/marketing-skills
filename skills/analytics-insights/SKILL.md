@@ -175,16 +175,6 @@ Schema, common queries, and the full attribution-modeling workflow in [`referenc
 - **Annotate sampling.** If GA4 returns a `samplesReadCount < samplingSpaceSize`, say so explicitly. The user needs to know whether to trust the number for finance / board reporting.
 - **Distinguish "ratio metric" from "summable metric".** Bounce rate, engagement rate, conversion rate are *ratios* and don't sum — present them as one number, not a column total.
 
-## Critical rules (recap)
-
-1. GA4 property IDs: reporting tools use `property_id=`, create/list tools use `parent=`, get/update/delete tools use `name=` (full resource path).
-2. Date ranges are inclusive on both ends.
-3. Above ~10M events, GA4 API samples — switch to BigQuery export for precision.
-4. Conversions are "key events" in GA4 (renamed in 2024).
-5. GTM changes need workspace → version → publish to go live.
-6. GSC has a 2–3 day data lag; GA4 has 24–48h.
-7. MPP inflates GA4 email-engagement metrics.
-
 ## Reference workflows
 
 | Reference | When to read |

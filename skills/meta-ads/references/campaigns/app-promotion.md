@@ -55,10 +55,11 @@ Default to APP_INSTALLS unless re-engagement is specified.
 ### Pre-build checklist
 
 - [ ] App ID confirmed (from Meta App Dashboard — NOT the app store numeric ID)
-- [ ] App store URL confirmed (full URL with https://)
+- [ ] App store URL confirmed (full URL with https://) — this exact URL becomes both the ad set's `object_store_url` AND the creative's CTA `link`
 - [ ] Budget confirmed and converted to cents
 - [ ] Page ID captured explicitly from discovery
 - [ ] Creative assets ready or will use app store screenshots
+- [ ] Adding to an **existing** ad set? Call `meta_ads_ad_sets_get` first and copy `promoted_object.object_store_url` into the creative link verbatim
 
 ### 1. Create campaign
 
@@ -68,7 +69,9 @@ meta_ads_campaigns_create(
     name="App Installs - [App Name] - [Date]",
     objective="OUTCOME_APP_PROMOTION",
     status="PAUSED",
-    daily_budget=2000    # $20/day in cents — Advantage+ only; omit for manual
+    daily_budget=2000,              # $20/day in cents — Advantage+ only; omit for manual
+    is_skadnetwork_attribution=True # REQUIRED if the ad set targets iOS 14+ (see note in step 2);
+                                    # campaign-level and immutable — can't be added later
 )
 ```
 
@@ -132,6 +135,24 @@ meta_ads_campaigns_create(
 
 → Capture `adset_id`.
 
+> **iOS 14+ targeting (SKAdNetwork).** To target "iOS 14 and above" set
+> `targeting.user_os: ["iOS_ver_14.0_and_above"]` on the ad set **and** create the parent
+> campaign with `is_skadnetwork_attribution: true` (a **campaign-level** flag on
+> `meta_ads_campaigns_create`, not an ad-set field). Without it Meta silently clamps the
+> target to `iOS_ver_14.0_to_14.4` and the ad set shows as **"Apple App Store (iOS 13.7 or
+> earlier)"** in Ads Manager. The flag is **immutable after the campaign is created** — if
+> you forgot it, delete the campaign and recreate it. Creating an open-ended-iOS app ad set
+> under a non-SKAdNetwork campaign is now rejected with this guidance rather than shipping
+> the broken target. **Android is unaffected** — this is iOS-only (SKAdNetwork is Apple's
+> framework).
+>
+> **user_os value format.** The ONLY valid values are `iOS_ver_<v>_and_above` /
+> `Android_ver_<v>_and_above` (open-ended), `iOS_ver_<min>_to_<max>` (range), or bare
+> `iOS` / `Android` (all versions). Do **not** use `iOS_14`, `iOS 14+`, or a
+> `user_os_version` field — Meta rejects them with *"Invalid User_os Value"* / *"not a
+> valid target spec field"*. (Shorthand is auto-normalized as a safety net, but emit the
+> canonical value.)
+
 ### 3. Upload image
 
 ```python
@@ -144,6 +165,12 @@ meta_ads_ad_images_upload(account_id="act_123456789", image_url="<url>")
 
 > **CRITICAL**: `meta_ads_create` takes a **single `input_data` dict**. No separate top-level args.
 
+> **CRITICAL — the creative link MUST match the ad set's `object_store_url` exactly.** Meta rejects the ad with *"Object store URL does not match promoted object"* if the creative's CTA destination differs from the store URL on the ad set's `promoted_object`. **Never guess or hand-type the store URL.** If you did not just create the ad set yourself (e.g. you are adding creatives to an existing ad set), call `meta_ads_ad_sets_get(<adset_id>)` **first**, read `promoted_object.object_store_url`, and copy that exact value into:
+> - `link_data.link`, and
+> - `link_data.call_to_action.value.link` (if you set a CTA value)
+>
+> They must be character-for-character identical to the ad set's `object_store_url`.
+
 ```json
 {
   "input_data": {
@@ -154,7 +181,7 @@ meta_ads_ad_images_upload(account_id="act_123456789", image_url="<url>")
       "object_story_spec": {
         "page_id": "<page_id>",
         "link_data": {
-          "link": "https://apps.apple.com/app/example/id123456789",
+          "link": "<EXACT object_store_url from the ad set's promoted_object>",
           "image_hash": "<image_hash>",
           "call_to_action": {"type": "DOWNLOAD"},
           "message": "Download [App Name] and [key benefit].",
@@ -184,9 +211,11 @@ meta_ads_campaigns_activate(campaign_id="<campaign_id>")  # when user approves
 
 | Symptom | Cause | Fix |
 |---|---|---|
+| `Object store URL does not match promoted object` (code 100) | Creative CTA link ≠ ad set's `promoted_object.object_store_url` | Read `promoted_object.object_store_url` via `meta_ads_ad_sets_get` and copy it exactly into the creative's `link` (don't guess the URL) |
 | Cryptic API error on ad set | Missing `promoted_object` | Add `application_id` + `object_store_url` |
 | "App not found" error | Wrong `application_id` | Verify in Meta App Dashboard, not app store |
 | `object_store_url` invalid | URL format wrong or missing https:// | Use full URL with https:// |
 | Budget rejected | Passed dollars not cents | Multiply by 100 |
 | Ad set error: unexpected argument | Fields outside `input_data` | All fields must be inside `input_data` dict |
 | Campaign ACTIVE but no installs | Used `update_campaign(status="ACTIVE")` | Use `meta_ads_campaigns_activate()` |
+| Ad set shows "iOS 13.7 or earlier" / `user_os` reads `iOS_ver_14.0_to_14.4` | Parent **campaign** not created as iOS-14 SKAdNetwork, so Meta clamped the open-ended target | Recreate the campaign with `meta_ads_campaigns_create(..., is_skadnetwork_attribution=true)` — it's a campaign-level flag, immutable after creation |

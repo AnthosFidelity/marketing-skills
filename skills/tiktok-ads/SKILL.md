@@ -7,7 +7,7 @@ description: Plan and create TikTok advertising campaigns end-to-end via the Hyp
 
 Strategic guide for managing TikTok advertising campaigns. Research deeply, validate parameters carefully, and guide users through the platform's strict objective-specific requirements.
 
-This skill is for **paid TikTok ads** (the TikTok Marketing API surface). For organic TikTok video posting, see the future `tiktok-posting` sibling skill.
+This skill is for **paid TikTok ads** (the TikTok Marketing API surface).
 
 ## Requirements
 
@@ -15,6 +15,12 @@ This skill is for **paid TikTok ads** (the TikTok Marketing API surface). For or
 - **TikTok Marketing integration connected** (TikTok Ads Manager / Business Center) at [https://app.hyperfx.ai/integrations](https://app.hyperfx.ai/integrations).
 
 If `tiktok_get_advertiser_accounts` is not in the tool list, stop and tell the user to enable Hyper MCP and connect TikTok Marketing.
+
+## Out of scope — defer to other skills
+
+- **Organic TikTok posting** (videos, photos, carousels — no ad spend) → [`tiktok`](../tiktok).
+- **Creative generation** (ad copy, images) → [`ad-creative-generation`](../ad-creative-generation); video creatives → [`video-generation`](../video-generation).
+- **Cross-platform campaign launches** → use this skill for TikTok, then invoke `meta-ads` / `google-ads` separately.
 
 ## Tool surface
 

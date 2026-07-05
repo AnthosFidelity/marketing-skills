@@ -1,33 +1,20 @@
 # Meta Ads: Dashboard Building
 
-When the user asks for a Meta dashboard or performance report interface, follow the preset-first workflow below.
+When the user asks for a Meta dashboard or performance report interface, follow the workflow below.
 
 ---
 
-## Workflow: preset first, custom second
+## Workflow: cached data first, then build
 
 ### 1. Use cached data
 
 Read the Meta context block in the toolkit for the table name and last sync timestamp. Query cached data via `database_query` (the canonical SQL tool) before making any live Meta API calls.
 
-### 2. Check for dashboard templates
+### 2. Build the dashboard
 
-Call `hyper_data_list_dashboard_templates`. If a suitable preset exists (e.g. `meta_business_performance`), use it:
+Build the dashboard using `hyper_data_build_dashboard` with `tool_data_sources` and `sql_data_sources` (see the custom pattern below). Inspect the live tool schema before calling — it documents the accepted data-source shapes and UI components. Do not invent dashboard patterns.
 
-```python
-hyper_data_build_dashboard(
-    name="Meta Performance Dashboard",
-    template_id="meta_business_performance"
-)
-```
-
-Preset templates cover the most common reporting views and require no custom SQL.
-
-### 3. Custom dashboard only when needed
-
-If no preset covers the user's requirements, build a custom dashboard using `hyper_data_build_dashboard` with `tool_data_sources` and `sql_data_sources` (see the custom pattern below). Inspect the live tool schema before calling — do not invent dashboard patterns.
-
-### 4. Cache refresh policy
+### 3. Cache refresh policy
 
 Data syncs automatically every 30 minutes. If data is stale or the user requests a refresh, call `meta_business_sync` with no parameters. This is a background refresh — do not wait for completion.
 

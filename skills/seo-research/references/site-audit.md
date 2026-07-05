@@ -40,7 +40,7 @@ If the user has Google Search Console connected in Hyper:
               WHERE date >= CURRENT_DATE - 30 GROUP BY query ORDER BY clicks DESC LIMIT 20"
    )
    ```
-   **If the tool returns a "No data cached" error:** check the `suggestion` field in the response — it contains the workspace-specific table name (e.g. `hyper_cache_google_search_console_4ggy0b0p__daily_insights`). Retry the query using that exact table name. If no data exists at all, call `google_search_console_sync()` first to trigger an initial sync, wait for it to complete, then re-query.
+   **If the tool returns a "No data cached" error:** check the `suggestion` field in the response — it contains the workspace-specific table name (workspace-specific, e.g. `hyper_cache_google_search_console_<workspace>__daily_insights`). Retry the query using that exact table name. If no data exists at all, call `google_search_console_sync()` first to trigger an initial sync, wait for it to complete, then re-query.
 
    Returns actual clicks, impressions, CTR, and average position from GSC — ground-truth data vs. DataForSEO estimates.
 3. Use this alongside `hyperseo_domain_overview`. Real GSC clicks will differ from ETV estimates — present both where available.
