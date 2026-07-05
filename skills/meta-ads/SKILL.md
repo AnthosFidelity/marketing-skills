@@ -38,7 +38,7 @@ Use the **exact tool name from your connected tool list**. Canonical names are `
 | Step-by-step creation (preferred) | `meta_ads_campaigns_create`, `meta_ads_ad_sets_create`, `meta_ads_create`, `meta_ads_ad_images_upload`, `meta_ads_ad_creatives_create` |
 | Blueprint path (avoid — see rule below) | `meta_ads_blueprints_preview`, `meta_ads_campaign_blueprints_create` |
 | Read & preview | `meta_ads_campaigns_get`, `meta_ads_campaigns_search`, `meta_ads_ad_sets_list`, `meta_ads_list`, `meta_ads_get`, `meta_ads_ad_previews_get` |
-| Insights & dashboards | `meta_ads_insights_get`, `meta_business_sync`, `hyper_data_list_dashboard_templates`, `hyper_data_build_dashboard`, `database_query` |
+| Insights & dashboards | `meta_ads_insights_get`, `meta_business_sync`, `hyper_data_build_dashboard`, `database_query` |
 | Launch & edits | `meta_ads_campaigns_activate`, `meta_ads_campaigns_update`, `meta_ads_ad_sets_update`, `meta_ads_update` |
 | Site research | `firecrawl_extract_branding`, `firecrawl_screenshot` |
 

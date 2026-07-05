@@ -82,9 +82,7 @@ WHERE segments.date DURING LAST_30_DAYS
 Skip this phase for plain written reports. When the user asks for a dashboard or data app, or an interactive view is clearly the best presentation, use the matching report's dashboard section as the implementation recipe.
 
 Before authoring a custom dashboard:
-- Check `hyper_data_list_dashboard_templates` for a suitable preset first.
-- Verify component names with `hyper_data_search_ui_components`.
-- Inspect the live `hyper_data_build_dashboard` tool schema — do not invent dashboard patterns.
+- Inspect the live `hyper_data_build_dashboard` tool schema first — it documents the accepted data-source shapes and UI components. Do not invent dashboard patterns or component names.
 
 The implementation pattern is:
 

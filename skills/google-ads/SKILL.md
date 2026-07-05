@@ -30,7 +30,7 @@ If `google_ads_list_accounts` is not in the tool list, stop and tell the user to
 | `google_ads_list_assets`, `google_ads_upload_image_asset` | Manage image assets for Display / PMax. |
 | `google_ads_preview_blueprint`, `google_ads_create_from_blueprint` | Validate + create Search/Display campaigns. |
 | `google_ads_preview_pmax_blueprint`, `google_ads_create_from_pmax_blueprint` | Validate + create Performance Max campaigns. |
-| `hyper_data_list_dashboard_templates`, `hyper_data_build_dashboard`, `hyper_data_refresh_dashboard`, `hyper_data_search_ui_components` | Optional dashboards / data apps for reports. |
+| `hyper_data_build_dashboard`, `hyper_data_refresh_dashboard` | Optional dashboards / data apps for reports. |
 
 ## Rules that must never be forgotten
 
