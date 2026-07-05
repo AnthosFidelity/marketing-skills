@@ -5,11 +5,11 @@
 ### Full pipeline: Video → Transcript → Subtitles → Burned Video
 
 ```python
-transcript = transcribe_video(file_id="video_file_id")
+transcript = videos_transcribe(file_id="video_file_id")
 
-subs = generate_subtitles(file_id="video_file_id", transcript=transcript, format="srt")
+subs = videos_subtitles_generate(file_id="video_file_id", transcript=transcript, format="srt")
 
-burn_subtitles(
+videos_subtitles_burn(
     video_file_id="video_file_id",
     subtitle_file_id=subs.file_id,
     style="bold_outline",
@@ -31,7 +31,7 @@ burn_subtitles(
 Add titles, lower-thirds, CTAs, and other graphics:
 
 ```python
-overlay_text(
+videos_text_overlays_add(
     video_file_id="video_file_id",
     overlays=[
         {
@@ -63,19 +63,19 @@ overlay_text(
 Generate natural-sounding voiceover with TTS and add it to any video:
 
 ```python
-audio = text_to_speech(
+audio = audio_speech_generate(
     text="Welcome to our product. Here's how it works...",
     voice="nova",
     model="tts-1",
 )
 
-add_audio_to_video(
+videos_audio_add(
     video_file_id="video_id",
     audio_file_id=audio.file_id,
     mode="replace",
 )
 
-add_audio_to_video(
+videos_audio_add(
     video_file_id="video_id",
     audio_file_id=audio.file_id,
     mode="mix",
@@ -92,7 +92,7 @@ add_audio_to_video(
 Add word-by-word highlighted captions that light up as spoken:
 
 ```python
-burn_highlighted_captions(
+videos_captions_burn_highlighted(
     video_file_id="video_id",
     style="tiktok",
     highlight_color="#3B82F6",
@@ -101,7 +101,7 @@ burn_highlighted_captions(
     position="center",
 )
 
-burn_highlighted_captions(
+videos_captions_burn_highlighted(
     video_file_id="video_id",
     style="karaoke",
     highlight_color="yellow",
@@ -117,7 +117,7 @@ burn_highlighted_captions(
 Extract segments from longer videos:
 
 ```python
-clip_video(
+videos_clips_extract(
     video_file_id="long_video_id",
     start_time=45.0,
     end_time=60.0,

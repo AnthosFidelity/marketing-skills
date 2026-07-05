@@ -15,11 +15,11 @@ This skill assumes the [Hyper MCP](https://app.hyperfx.ai/mcp) is connected to y
 
 | Group | Tools |
 |-------|-------|
-| Generation | `generate_video`, `sora_remix_video`, `sora_delete_video` |
-| Analysis | `analyze_video`, `capture_video_frame`, `transcribe_video` |
-| Subtitles & captions | `generate_subtitles`, `burn_subtitles`, `burn_highlighted_captions` |
-| Audio | `text_to_speech`, `add_audio_to_video` |
-| Editing | `clip_video`, `stitch_videos`, `overlay_text` |
+| Generation | `videos_generate`, `sora_videos_remix`, `sora_videos_delete` |
+| Analysis | `videos_analyze`, `videos_frames_capture`, `videos_transcribe` |
+| Subtitles & captions | `videos_subtitles_generate`, `videos_subtitles_burn`, `videos_captions_burn_highlighted` |
+| Audio | `audio_speech_generate`, `videos_audio_add` |
+| Editing | `videos_clips_extract`, `videos_stitch`, `videos_text_overlays_add` |
 
 ## Out of scope
 
@@ -31,26 +31,26 @@ This skill assumes the [Hyper MCP](https://app.hyperfx.ai/mcp) is connected to y
 
 | Tool | Purpose | Runs in Background |
 |------|---------|-------------------|
-| `generate_video` | Generate video from text / image prompt | Yes |
-| `sora_remix_video` | Modify existing Sora video | Yes |
-| `sora_delete_video` | Delete a Sora video | No |
-| `capture_video_frame` | Extract frame as image | No |
-| `analyze_video` | Watch and understand video content | No |
-| `transcribe_video` | Extract audio transcript | No |
-| `generate_subtitles` | Create SRT / VTT subtitle file | No |
-| `burn_subtitles` | Burn subtitles onto video | Yes |
-| `burn_highlighted_captions` | TikTok / karaoke-style word-by-word captions | Yes |
-| `text_to_speech` | Generate voiceover audio from text | No |
-| `add_audio_to_video` | Add / replace audio track on video | Yes |
-| `clip_video` | Extract a time segment from video | Yes |
-| `stitch_videos` | Concatenate multiple clips | Yes |
-| `overlay_text` | Add text / titles to video | Yes |
+| `videos_generate` | Generate video from text / image prompt | Yes |
+| `sora_videos_remix` | Modify existing Sora video | Yes |
+| `sora_videos_delete` | Delete a Sora video | No |
+| `videos_frames_capture` | Extract frame as image | No |
+| `videos_analyze` | Watch and understand video content | No |
+| `videos_transcribe` | Extract audio transcript | No |
+| `videos_subtitles_generate` | Create SRT / VTT subtitle file | No |
+| `videos_subtitles_burn` | Burn subtitles onto video | Yes |
+| `videos_captions_burn_highlighted` | TikTok / karaoke-style word-by-word captions | Yes |
+| `audio_speech_generate` | Generate voiceover audio from text | No |
+| `videos_audio_add` | Add / replace audio track on video | Yes |
+| `videos_clips_extract` | Extract a time segment from video | Yes |
+| `videos_stitch` | Concatenate multiple clips | Yes |
+| `videos_text_overlays_add` | Add text / titles to video | Yes |
 
 ## Video Understanding
 
-You can **watch and analyze any video** using `analyze_video`. This sends the video to a multimodal AI that sees both visual and audio content.
+You can **watch and analyze any video** using `videos_analyze`. This sends the video to a multimodal AI that sees both visual and audio content.
 
-### When to use `analyze_video`
+### When to use `videos_analyze`
 
 - After generating a video: check if it matches your intent
 - Before stitching: verify scene consistency across clips
@@ -60,10 +60,10 @@ You can **watch and analyze any video** using `analyze_video`. This sends the vi
 ### Analysis Types
 
 ```python
-analyze_video(file_id="...", analysis_type="general")
-analyze_video(file_id="...", analysis_type="quality_review")
-analyze_video(file_id="...", analysis_type="scene_breakdown")
-analyze_video(file_id="...", question="Does this match: [original prompt]?")
+videos_analyze(file_id="...", analysis_type="general")
+videos_analyze(file_id="...", analysis_type="quality_review")
+videos_analyze(file_id="...", analysis_type="scene_breakdown")
+videos_analyze(file_id="...", question="Does this match: [original prompt]?")
 ```
 
 ### Self-Review Workflow
@@ -71,8 +71,8 @@ analyze_video(file_id="...", question="Does this match: [original prompt]?")
 Always review generated videos before delivering to the user:
 
 ```python
-result = generate_video(prompt="...", model="veo-3.1-generate-preview")
-review = analyze_video(file_id="video_file_id", analysis_type="quality_review")
+result = videos_generate(prompt="...", model="veo-3.1-generate-preview")
+review = videos_analyze(file_id="video_file_id", analysis_type="quality_review")
 # If issues found, regenerate with adjustments. If quality is good, proceed to editing.
 ```
 
@@ -87,11 +87,11 @@ review = analyze_video(file_id="video_file_id", analysis_type="quality_review")
 | Add subtitles / captions / voiceover / overlays, or clip a video | [references/post-production.md](references/post-production.md) |
 | Produce UGC / TikTok content end-to-end | [references/workflows.md](references/workflows.md) → [references/generation.md](references/generation.md) |
 | Turn a podcast / long video into short clips | [references/workflows.md](references/workflows.md) → [references/post-production.md](references/post-production.md) |
-| Understand or QA an existing video | Use `analyze_video` (see Video Understanding above) |
+| Understand or QA an existing video | Use `videos_analyze` (see Video Understanding above) |
 
 ## Best Practices
 
-1. **Review before delivering:** always use `analyze_video` to check your output.
+1. **Review before delivering:** always use `videos_analyze` to check your output.
 2. **Maintain visual consistency:** use the same character descriptions, lighting, and style across all scenes.
 3. **Plan transitions:** design the end of each scene to flow into the next.
 4. **Batch similar scenes:** generate scenes with similar settings together.

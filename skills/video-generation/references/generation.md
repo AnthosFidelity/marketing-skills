@@ -20,14 +20,14 @@ To create seamless multi-scene videos:
 ### Scene 1 (text-to-video)
 
 ```python
-generate_video(prompt="...", model="veo-3.1-generate-preview")
+videos_generate(prompt="...", model="veo-3.1-generate-preview")
 ```
 
 ### Scene 2+ (image-to-video)
 
 ```python
-capture_video_frame(video_file_id="scene1_file_id", frame_position="last")
-generate_video(prompt="continuation: ...", image_file_id="captured_frame_id")
+videos_frames_capture(video_file_id="scene1_file_id", frame_position="last")
+videos_generate(prompt="continuation: ...", image_file_id="captured_frame_id")
 ```
 
 Repeat: extract last frame → generate next scene.
@@ -37,9 +37,9 @@ Repeat: extract last frame → generate next scene.
 After generating all scenes, combine them:
 
 ```python
-stitch_videos(video_file_ids=["scene1_id", "scene2_id", "scene3_id"])
+videos_stitch(video_file_ids=["scene1_id", "scene2_id", "scene3_id"])
 
-stitch_videos(
+videos_stitch(
     video_file_ids=["scene1_id", "scene2_id", "scene3_id"],
     transition="crossfade",
     crossfade_duration=0.5,
@@ -72,7 +72,7 @@ Each scene prompt should include:
 | Parameter | Description |
 |-----------|-------------|
 | `image_file_id` | Use for image-to-video (scene continuity) |
-| `capture_video_frame` | Extract frames with `position="last"` \| `"first"` \| `"middle"` |
+| `videos_frames_capture` | Extract frames with `frame_position="last"` \| `"first"` \| `"middle"` |
 | `size` | For Sora only. One of: `"720x1280"`, `"1280x720"`, `"1024x1792"`, `"1792x1024"` |
 | `aspect_ratio` | For Veo only. One of: `"16:9"` or `"9:16"` |
 | `duration_seconds` | Sora: 4, 8, or 12 seconds only. Veo: 4-8 seconds |
@@ -118,7 +118,7 @@ Each scene prompt should include:
 
 ## Duration Limits
 
-- **Sora:** 4, 8, or 12 seconds per generation. Use scene chaining + `stitch_videos` for longer videos.
+- **Sora:** 4, 8, or 12 seconds per generation. Use scene chaining + `videos_stitch` for longer videos.
 - **Veo:** 4, 5, 6, 7, or 8 seconds per generation.
 - **Seedance:** 4-15 seconds per generation (most flexible). Supports `generate_audio=true` for native audio with lip-sync.
 
