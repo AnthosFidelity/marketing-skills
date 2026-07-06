@@ -76,6 +76,8 @@ That's `meta-ads` + `google-ads` + `tiktok-ads` + `ad-creative-generation` + `vi
 
 | Skill | What it does | Required integrations |
 |---|---|---|
+| **Foundation** | | |
+| [`brand-context`](skills/brand-context) | Build one `brand-context.md` per brand — positioning, ICP, personas, verbatim customer language, voice, proof points — that every other skill reads before asking brand questions. | Firecrawl recommended for auto-draft; works standalone via interview |
 | **Paid ads** | | |
 | [`google-ads`](skills/google-ads) | Plan and launch Google Ads campaigns — Search, Display, and Performance Max — and build GAQL-backed reports and dashboards. | Google Ads |
 | [`meta-ads`](skills/meta-ads) | Plan and launch Meta ad campaigns across Facebook and Instagram; audit existing accounts. | Meta Business, Firecrawl |
@@ -242,7 +244,6 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) to contribute a skill.
 | [`google-sheets`](skills/google-sheets) | Write structured data to Google Sheets and keep spreadsheets up to date. | Google Sheets |
 | [`slack`](skills/slack) | Send Slack messages, share files and images, and work with channels and threads. | Slack |
 | [`twilio`](skills/twilio) | Send SMS and WhatsApp messages and manage Twilio messaging workflows. | Twilio |
-| [`polymarket-trading`](skills/polymarket-trading) | Research Polymarket prediction markets and manage positions and orders. | Polymarket |
 
 ## Contributing
 
