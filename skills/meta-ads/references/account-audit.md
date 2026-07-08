@@ -6,7 +6,7 @@ For query mechanics (insights args, date presets, cached data vs live API), see 
 
 ## Step 1: Account overview
 
-1. `meta_ads_ad_accounts_list` — list all ad accounts.
+1. `meta_ads_adaccount_list` — list all ad accounts.
 2. For each account in scope, note spend limits, timezone, and currency.
 3. Check account status and any restrictions. If accounts are missing or errors look like permission problems, run `meta_ads_health_check()` and surface the diagnostics.
 
@@ -37,7 +37,7 @@ Pull performance for the audit window (default: last 30 days — confirm with th
 
 For top-spending campaigns:
 
-1. `meta_ads_ad_sets_list` — get ad set details.
+1. `meta_ads_adset_list` — get ad set details.
 2. Review targeting settings:
    - Audience sizes (too narrow → high CPM; overlapping → auction competition)
    - Age/gender targeting
@@ -50,7 +50,7 @@ For top-spending campaigns:
 
 For top ad sets:
 
-1. `meta_ads_list` — list ads; `meta_ads_get` for details.
+1. `meta_ads_ad_list` — list ads; `meta_ads_ad_get` for details.
 2. Review creative types in use: static images, videos, carousels, dynamic creative.
 3. Check ad fatigue: frequency > 3 over the window is a refresh signal.
 4. Check UTM coverage: creatives driving to a destination without `url_tags` are unmeasurable downstream — flag them.

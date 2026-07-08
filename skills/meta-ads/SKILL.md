@@ -1,6 +1,9 @@
 ---
 name: meta-ads
-description: Plan and create Meta (Facebook + Instagram) advertising campaigns end-to-end via the Hyper MCP, defaulting to Advantage+ automation. Use when the user wants to launch Meta ads, Facebook ads, Instagram ads, Advantage+ campaigns, carousel ads, dynamic creative ads, set up Meta conversion tracking, analyze performance, audit a Meta ads account, or build Meta performance dashboards. Also triggers on phrases like meta campaign, facebook campaign, advantage+, meta account audit, or meta blueprint.
+description: Plan and create Meta (Facebook + Instagram) advertising campaigns end-to-end via the Hyper MCP, defaulting to Advantage+ automation. Use when the user wants to launch Meta ads, Facebook ads, Instagram ads, Advantage+ campaigns, carousel ads, dynamic creative ads, set up Meta conversion tracking, analyze performance, audit a Meta ads account, or build Meta performance dashboards. Also triggers on phrases like meta campaign, facebook campaign, advantage+, or meta account audit.
+requires_toolkits:
+  - meta_ads
+  - meta_business
 icon: meta_ads
 short_description: Plan and create Meta ad campaigns with Advantage+ defaults, audits, and dashboards.
 ---
@@ -24,24 +27,23 @@ Strategic guide for creating and managing Meta advertising campaigns, analyzing 
 - **Meta Business integration connected** (Facebook + Instagram, with at least one ad account and one Page) at [https://app.hyperfx.ai/apps](https://app.hyperfx.ai/apps).
 - **Firecrawl integration connected** for site research and screenshot grounding (discovery phase).
 
-If `meta_ads_ad_accounts_list` is not in the tool list, stop and tell the user to enable Hyper MCP and connect Meta Business.
+If `meta_ads_adaccount_list` is not in the tool list, stop and tell the user to enable Hyper MCP and connect Meta Business.
 
 If you suspect a connection issue (missing ad accounts, page publishing failures, or permission errors), call `meta_ads_health_check()` and report the diagnostics before proceeding.
 
 ## Tool names
 
-Use the **exact tool name from your connected tool list**. Canonical names are `meta_ads_*` (listed below). On Hyper platform chat, legacy `meta_business_*` aliases (e.g. `meta_business_list_ad_accounts`) resolve to the same tools — if a call fails with "tool not found", search the live catalog for the canonical name.
+Use the **exact tool name from your connected tool list**. Canonical names are `meta_ads_*` (listed below). On Hyper platform chat, legacy `meta_business_*` names (e.g. `meta_business_list_ad_accounts`) and the retired plural names (e.g. `meta_ads_campaigns_create`) resolve to the same tools via aliases — if a call fails with "tool not found", search the live catalog for the canonical name.
 
 | Group | Tools |
 | --- | --- |
-| Discovery | `meta_ads_ad_accounts_list`, `meta_ads_owned_pages_list`, `meta_ads_pages_search`, `meta_accounts_list`, `meta_ads_instagram_accounts_list` |
-| Health & sync | `meta_ads_health_check`, `meta_business_sync` |
+| Discovery | `meta_ads_adaccount_list`, `meta_ads_owned_pages_list`, `meta_ads_pages_search`, `meta_accounts_list`, `meta_ads_instagram_accounts_list` |
+| Health & sync | `meta_ads_health_check`, `meta_ads_health_get` |
 | Tracking assets | `meta_ads_ad_pixels_list`, `meta_ads_ad_pixels_get`, `meta_ads_custom_audiences_list`, `meta_ads_lookalike_audiences_list`, `meta_ads_targeting_search` |
-| Step-by-step creation (preferred) | `meta_ads_campaigns_create`, `meta_ads_ad_sets_create`, `meta_ads_create`, `meta_ads_ad_images_upload`, `meta_ads_ad_creatives_create` |
-| Blueprint path (avoid — see rule below) | `meta_ads_blueprints_preview`, `meta_ads_campaign_blueprints_create` |
-| Read & preview | `meta_ads_campaigns_get`, `meta_ads_campaigns_search`, `meta_ads_ad_sets_list`, `meta_ads_list`, `meta_ads_get`, `meta_ads_ad_previews_get` |
-| Insights & dashboards | `meta_ads_insights_get`, `meta_business_sync`, `hyper_data_build_dashboard`, `database_query` |
-| Launch & edits | `meta_ads_campaigns_activate`, `meta_ads_campaigns_update`, `meta_ads_ad_sets_update`, `meta_ads_update` |
+| Step-by-step creation (preferred) | `meta_ads_campaign_create`, `meta_ads_adset_create`, `meta_ads_ad_create`, `meta_ads_ad_images_upload`, `meta_ads_creative_create` |
+| Read & preview | `meta_ads_campaign_get`, `meta_ads_campaigns_search`, `meta_ads_adset_list`, `meta_ads_ad_list`, `meta_ads_ad_get`, `meta_ads_ad_previews_get` |
+| Insights & dashboards | `meta_ads_insights_get`, `hyper_data_build_dashboard`, `database_query` |
+| Launch & edits | `meta_ads_campaigns_activate`, `meta_ads_campaign_update`, `meta_ads_adset_update`, `meta_ads_ad_update` |
 | Site research | `firecrawl_branding_extract`, `firecrawl_screenshots_create` |
 
 CLI users: translate tool names with the `hyper-cli` skill (`hyperai search "<tool name>"`).
@@ -52,15 +54,15 @@ CLI users: translate tool names with the `hyper-cli` skill (`hyperai search "<to
 
 > **BUDGETS IN CENTS**: $20.00 = 2000. $5.50 = 550. $100 = 10000. Never pass dollar amounts directly.
 
-> **ACTIVATE, DON'T UPDATE**: Use `meta_ads_campaigns_activate(campaign_id)` to go live. Never `meta_ads_campaigns_update(status="ACTIVE")` — that silently leaves ad sets and ads PAUSED so nothing serves.
+> **ACTIVATE, DON'T UPDATE**: Use `meta_ads_campaigns_activate(campaign_id)` to go live. Never `meta_ads_campaign_update(status="ACTIVE")` — that silently leaves ad sets and ads PAUSED so nothing serves.
 
 > **ALWAYS START PAUSED**: Create campaigns with `status="PAUSED"`. Never launch live without user review.
 
-> **BUILD STEP BY STEP, NOT VIA BLUEPRINT**: Create campaigns with the individual tools — `meta_ads_campaigns_create` → `meta_ads_ad_sets_create` → `meta_ads_ad_creatives_create` → `meta_ads_create`, capturing each id from the previous response. Do NOT use the blueprint tools (`meta_ads_blueprints_preview` / `meta_ads_campaign_blueprints_create`). The step-by-step tools validate each object against its campaign objective (e.g. they enforce the correct `optimization_goal` and `promoted_object`), so mistakes are caught up front instead of silently producing an invalid campaign.
+> **BUILD STEP BY STEP**: Create campaigns with the individual tools — `meta_ads_campaign_create` → `meta_ads_adset_create` → `meta_ads_creative_create` → `meta_ads_ad_create`, capturing each id from the previous response. (The old blueprint tools were removed.) The tools validate requests before sending — campaign objective rules, bid-strategy/bid-amount pairing, billing-event/optimization-goal compatibility, budget coherence — but objective-specific ad-set fields (`optimization_goal`, `promoted_object`) are YOUR responsibility: match them to the campaign objective using the reference file for the campaign type.
 
-> **REGULATED ADVERTISERS NEED `special_ad_categories`**: For gambling, financial, housing, employment, credit, or political advertisers, declare the category on `meta_ads_campaigns_create` (e.g. `special_ad_categories=["ONLINE_GAMBLING_AND_GAMING"]`). The blueprint cannot set this — another reason regulated builds use the step-by-step path.
+> **REGULATED ADVERTISERS NEED `special_ad_categories`**: For gambling, financial, housing, employment, credit, or political advertisers, declare the category on `meta_ads_campaign_create` (e.g. `special_ad_categories=["ONLINE_GAMBLING_AND_GAMING"]`).
 
-> **EU-TARGETED AD SETS NEED DSA FIELDS**: If an ad set targets the EU, set `dsa_beneficiary` and `dsa_payor` on `meta_ads_ad_sets_create` (who benefits from / pays for the ad) — required under the EU Digital Services Act, or delivery is restricted.
+> **EU-TARGETED AD SETS NEED DSA FIELDS**: If an ad set targets the EU, set `dsa_beneficiary` and `dsa_payor` on `meta_ads_adset_create` (who benefits from / pays for the ad) — required under the EU Digital Services Act, or delivery is restricted.
 
 > **UTMs ON EVERY DESTINATION AD (`url_tags`)**: Set `url_tags` (UTM params, e.g. `utm_source=meta&utm_medium=paid&utm_campaign=...`) on every creative that drives to a destination — downstream measurement (e.g. AppsFlyer + a data warehouse) stitches on these, so an ad without UTMs is effectively unmeasurable. Use the advertiser's canonical template; if you don't have one, ask rather than ship untracked.
 

@@ -62,7 +62,7 @@ Cannot set daily_budget/lifetime_budget on ad set when campaign has budget (CBO)
 
 1. Create the campaign with **no budget**.
 2. Create ad sets with **no budget** (just `bid_amount` if the account's bid strategy requires it).
-3. Add `daily_budget` to the campaign via `meta_ads_campaigns_update` **after** the ad sets exist.
+3. Add `daily_budget` to the campaign via `meta_ads_campaign_update` **after** the ad sets exist.
 
 Deciding budget placement per campaign *before* creating anything avoids a delete-and-rebuild cycle. This matters most in multi-campaign builds that mix Advantage+ and manual modes — see [multi-campaign-funnel.md](multi-campaign-funnel.md).
 
@@ -72,7 +72,7 @@ Deciding budget placement per campaign *before* creating anything avoids a delet
 
 ```
 # WRONG — only flips the campaign flag; ad sets and ads stay PAUSED → nothing serves
-meta_ads_campaigns_update(campaign_id, status="ACTIVE")
+meta_ads_campaign_update(campaign_id="...", body={"status": "ACTIVE"})
 
 # RIGHT — activates campaign + all ad sets + all ads in one call
 meta_ads_campaigns_activate(campaign_id)
@@ -110,41 +110,41 @@ Omit `status` when creating ads — ads default to PAUSED automatically. Never p
 }
 ```
 
-### Advantage+ silently overrides narrow age bands
+### Advantage+ rejects narrow age bands
 
-When `advantage_audience: 1`, the tool **clamps** `age_min` to ≤25 and `age_max` to ≥65 (Meta rejects anything narrower for Advantage+). A request like "Advantage+, ages 25–54" is silently widened to **25–65** — the user does NOT get 25–54, and no error is raised.
+With `advantage_audience: 1`, Meta requires `age_min` ≤ 25 and `age_max` ≥ 65 — anything narrower is rejected. A request like "Advantage+, ages 25–54" cannot be honored as stated.
 
-If a strict age band matters to the user, do not use Advantage+ for that ad set. Use manual targeting (`mode="manual"`, no `advantage_audience`), where `age_min`/`age_max` are honored exactly. Surface the trade-off: Advantage+ audience expansion vs. a precise age band — you can't have both.
+If a strict age band matters to the user, do not use Advantage+ for that ad set: omit `targeting_automation.advantage_audience` and set `age_min`/`age_max` exactly. Surface the trade-off: Advantage+ audience expansion vs. a precise age band — you can't have both.
 
 ---
 
-## 6. create_ad_set: mode + input_data pattern
+## 6. One calling convention: `ad_account_id` + `body`
 
-`meta_ads_ad_sets_create` uses a different calling pattern from `meta_ads_campaigns_create`. Every ad set field goes inside `input_data`.
+Every create tool takes the ad account as `ad_account_id` plus a single `body` dict with the object fields; update tools take the object id (`campaign_id` / `adset_id` / `ad_id` / `creative_id`) plus `body`. There is no `mode` or `input_data` parameter.
 
 ```
-# WRONG — flat params like create_campaign
-meta_ads_ad_sets_create(account_id="act_...", campaign_id="123", name="...")
+# WRONG — flat params
+meta_ads_adset_create(account_id="act_...", campaign_id="123", name="...")
 
-# RIGHT — mode + input_data
-meta_ads_ad_sets_create(
-    mode="advantage_plus",
-    input_data={"account_id": "act_...", "campaign_id": "123", "name": "...", ...}
+# RIGHT — ad_account_id + body
+meta_ads_adset_create(
+    ad_account_id="1122334455",
+    body={"campaign_id": "123", "name": "...", "optimization_goal": "...", ...}
 )
 ```
 
-> **Prefer `meta_ads_ad_sets_create` with `mode`** — it's the unified path the rest of this skill uses. The `meta_ads_advantage_plus_ad_sets_create` / `meta_ads_manual_ad_sets_create` variants do the same job but take **flat positional arguments** instead of `mode` + `input_data`. They aren't broken or deprecated, but if you reach for one and apply the `input_data` shape you learned here, it fails with "missing required positional arguments." Stick to `meta_ads_ad_sets_create` so there's only one calling convention to track.
+For an Advantage+ audience, set `targeting_automation.advantage_audience` inside `body.targeting`; for a strict manual audience, omit it (see the Advantage+ note above).
 
 ---
 
-## 7. create_ad: single input_data dict
+## 7. create_ad: fields go in `body`
 
-`meta_ads_create` takes a **single `input_data` parameter** — a dict containing all fields. Do not pass `account_id`, `name`, `adset_id` etc. as separate top-level arguments.
+`meta_ads_ad_create` takes `ad_account_id` plus a `body` dict — do not pass `name`, `adset_id` etc. as separate top-level arguments, and do not pass JSON as a string.
 
 ```
-❌ WRONG: meta_ads_create(account_id="act_...", adset_id="123", name="My Ad")
-❌ WRONG: meta_ads_create(input_data='{"account_id": "act_..."}')  # string not dict
-✅ RIGHT:  meta_ads_create(input_data={"account_id": "act_...", "adset_id": "123", ...})
+❌ WRONG: meta_ads_ad_create(account_id="act_...", adset_id="123", name="My Ad")
+❌ WRONG: meta_ads_ad_create(ad_account_id="...", body='{"adset_id": "123"}')  # string not dict
+✅ RIGHT:  meta_ads_ad_create(ad_account_id="1122334455", body={"adset_id": "123", "name": "My Ad", "creative": {"creative_id": "..."}, "status": "PAUSED"})
 ```
 
 ### object_story_spec / link_data fields (applies to every objective)
@@ -192,11 +192,11 @@ These objectives **require** `promoted_object` on the ad set. Omitting it causes
 | OUTCOME_AWARENESS | Not required | — |
 | OUTCOME_ENGAGEMENT | Optional | `{"page_id": "PAGE_ID"}` |
 
-> **App promotion — the creative link must match `object_store_url`.** For OUTCOME_APP_PROMOTION, the ad's creative CTA destination (`link_data.link`, and `call_to_action.value.link` if set) must equal the ad set's `promoted_object.object_store_url` **exactly**, or Meta rejects the ad with *"Object store URL does not match promoted object"* (code 100). When you didn't just author the ad set yourself, call `meta_ads_ad_sets_get` and copy `promoted_object.object_store_url` verbatim — never guess the store URL.
+> **App promotion — the creative link must match `object_store_url`.** For OUTCOME_APP_PROMOTION, the ad's creative CTA destination (`link_data.link`, and `call_to_action.value.link` if set) must equal the ad set's `promoted_object.object_store_url` **exactly**, or Meta rejects the ad with *"Object store URL does not match promoted object"* (code 100). When you didn't just author the ad set yourself, call `meta_ads_adset_get` and copy `promoted_object.object_store_url` verbatim — never guess the store URL.
 
 ### Attribution window (`attribution_spec`)
 
-For conversion ad sets, set the attribution window explicitly with `attribution_spec` rather than relying on Meta's default — the window defines what counts as a conversion and is how the advertiser measures cost-per-result. It's an ad-set field (inside `input_data` on `meta_ads_ad_sets_create`), and it reads back on `meta_ads_ad_sets_get`.
+For conversion ad sets, set the attribution window explicitly with `attribution_spec` rather than relying on Meta's default — the window defines what counts as a conversion and is how the advertiser measures cost-per-result. It's an ad-set field (inside `body` on `meta_ads_adset_create`), and it reads back on `meta_ads_adset_get`.
 
 ```python
 # 1-day click (common for app installs / FTD / direct-response)
@@ -252,7 +252,7 @@ Lifetime budget without `end_time` will fail validation.
 `meta_ads_ad_previews_get` requires `creative_ids` (a list). `ad_id` is **not** a valid parameter and will fail.
 
 ```python
-# After meta_ads_create, extract creative_id from the response:
+# After meta_ads_ad_create, extract creative_id from the response:
 # response.creative.id
 
 meta_ads_ad_previews_get(creative_ids=["<creative_id>"])
@@ -301,44 +301,43 @@ When the user wants to update, pause, adjust budget, or change targeting on an e
 
 | What to update | Tool | Key params |
 |---|---|---|
-| Campaign status / budget | `meta_ads_campaigns_update` | `campaign_id`, `status`, `daily_budget` |
-| Ad set status / budget / targeting | `meta_ads_ad_sets_update` | `ad_set_id`, `status`, `daily_budget`, `targeting` |
-| Ad status / creative | `meta_ads_update` | `ad_id`, `status` |
+| Campaign status / budget | `meta_ads_campaign_update` | `campaign_id`, `body` (`status`, `daily_budget`) |
+| Ad set status / budget / targeting | `meta_ads_adset_update` | `adset_id`, `body` (`status`, `daily_budget`, `targeting`) |
+| Ad status / creative | `meta_ads_ad_update` | `ad_id`, `body` (`status`) |
 | Take everything live at once | `meta_ads_campaigns_activate` | `campaign_id` |
 
-Before updating, fetch current state with `meta_ads_campaigns_get` or `meta_ads_ad_sets_get` — do not guess at current values.
+Before updating, fetch current state with `meta_ads_campaign_get` or `meta_ads_adset_get` — do not guess at current values.
 
-**To pause:** `meta_ads_campaigns_update(campaign_id="...", status="PAUSED")`
-**To increase budget:** `meta_ads_campaigns_update(campaign_id="...", daily_budget=5000)` (in cents)
+**To pause:** `meta_ads_campaign_update(campaign_id="...", body={"status": "PAUSED"})`
+**To increase budget:** `meta_ads_campaign_update(campaign_id="...", body={"daily_budget": 5000})` (in cents)
 **To go live:** always `meta_ads_campaigns_activate(campaign_id)`, not `update_campaign(status="ACTIVE")`
 
 ---
 
 ## 16. Bid strategy & bid_amount
 
-`bid_strategy` is a **top-level parameter** on `meta_ads_ad_sets_create` (and `meta_ads_campaigns_create`) — NOT a field inside `input_data`. Putting it inside `input_data` causes a Pydantic error. `bid_amount` (in cents) goes **inside** `input_data`.
+`bid_strategy` and `bid_amount` (in cents) are both ad-set `body` fields. The toolkit validates their pairing before sending (e.g. `LOWEST_COST_WITH_BID_CAP` without `bid_amount` is rejected up front).
 
 **When the user explicitly asks for a bid cap, set it and proceed** — do not stop and ask (they already told you):
 
 ```python
-meta_ads_ad_sets_create(
-    mode="manual",
-    bid_strategy="LOWEST_COST_WITH_BID_CAP",   # top-level param
-    input_data={
-        "account_id": "act_...",
+meta_ads_adset_create(
+    ad_account_id="1122334455",
+    body={
         "campaign_id": "...",
         "name": "...",
         "optimization_goal": "LINK_CLICKS",
         "billing_event": "IMPRESSIONS",
+        "bid_strategy": "LOWEST_COST_WITH_BID_CAP",
         "daily_budget": 7500,                  # $75/day, ad-set level for manual
-        "bid_amount": 250,                     # $2.50 cap, inside input_data
+        "bid_amount": 250,                     # $2.50 cap
         "targeting": { ... }
     }
 )
 ```
 
 - `LOWEST_COST_WITH_BID_CAP` and `COST_CAP` require `bid_amount`.
-- For Advantage+ / CBO, `bid_strategy` belongs on the **campaign** (`create_campaign`) and `bid_amount` on the **ad set**.
+- For Advantage+ / CBO, `bid_strategy` belongs on the **campaign** (`meta_ads_campaign_create`) and `bid_amount` on the **ad set**.
 - The "stop and surface" rule in section 14 applies only when a bid-amount error appears that the user did **not** request (an account default strategy you didn't choose). Never invent a cap in that case.
 
 ---
@@ -393,35 +392,36 @@ This is a **Meta platform policy change**, not a toolkit limitation. When a user
 
 ## 19. Dynamic creative (`asset_feed_spec`) requires the two-step pattern
 
-`asset_feed_spec` (multiple text/headline/image variations for dynamic creative) **cannot be passed inline** inside the `creative` dict of `meta_ads_create`. It must be created as a standalone creative first.
+`asset_feed_spec` (multiple text/headline/image variations for dynamic creative) **cannot be passed inline** inside the `creative` dict of `meta_ads_ad_create`. It must be created as a standalone creative first.
 
 **Two-step pattern (required):**
 
 ```python
 # Step 1 — create the dynamic creative with asset_feed_spec
-creative = meta_ads_ad_creatives_create(
-    account_id="act_...",
-    name="My Dynamic Creative",
-    object_story_spec={
-        "page_id": "<page_id>",
-        "link_data": {
-            "link": "https://example.com",
-            "message": "Primary copy A",
+creative = meta_ads_creative_create(
+    ad_account_id="1122334455",
+    body={
+        "name": "My Dynamic Creative",
+        "object_story_spec": {
+            "page_id": "<page_id>",
+            "link_data": {
+                "link": "https://example.com",
+                "message": "Primary copy A",
+            }
+        },
+        "asset_feed_spec": {
+            "bodies": [{"text": "Copy A"}, {"text": "Copy B"}, {"text": "Copy C"}],
+            "titles": [{"text": "Headline 1"}, {"text": "Headline 2"}],
+            "images": [{"hash": "<image_hash_1>"}, {"hash": "<image_hash_2>"}],
+            "link_urls": [{"website_url": "https://example.com"}],
+            "call_to_action_types": [{"type": "LEARN_MORE"}]
         }
-    },
-    asset_feed_spec={
-        "bodies": [{"text": "Copy A"}, {"text": "Copy B"}, {"text": "Copy C"}],
-        "titles": [{"text": "Headline 1"}, {"text": "Headline 2"}],
-        "images": [{"hash": "<image_hash_1>"}, {"hash": "<image_hash_2>"}],
-        "link_urls": [{"website_url": "https://example.com"}],
-        "call_to_action_types": [{"type": "LEARN_MORE"}]
     }
 )
 # → capture creative_id
 
 # Step 2 — attach by creative_id
-meta_ads_create(input_data={
-    "account_id": "act_...",
+meta_ads_ad_create(ad_account_id="1122334455", body={
     "adset_id": "<adset_id>",
     "name": "My Dynamic Ad",
     "creative": {"creative_id": "<creative_id from step 1>"},
@@ -429,4 +429,4 @@ meta_ads_create(input_data={
 })
 ```
 
-Passing `asset_feed_spec` directly inside `meta_ads_create`'s `creative` dict is not supported — the inline creative spec only accepts `object_story_spec` or `creative_id`.
+Passing `asset_feed_spec` directly inside `meta_ads_ad_create`'s `creative` dict is not supported — the inline creative spec only accepts `object_story_spec` or `creative_id`.
