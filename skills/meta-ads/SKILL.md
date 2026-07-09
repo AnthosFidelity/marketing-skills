@@ -44,6 +44,7 @@ Use the **exact tool name from your connected tool list**. Canonical names are `
 | Read & preview | `meta_ads_campaign_get`, `meta_ads_campaigns_search`, `meta_ads_adset_list`, `meta_ads_ad_list`, `meta_ads_ad_get`, `meta_ads_ad_previews_get` |
 | Insights & dashboards | `meta_ads_insights_get`, `hyper_data_build_dashboard`, `database_query` |
 | Launch & edits | `meta_ads_campaigns_activate`, `meta_ads_campaign_update`, `meta_ads_adset_update`, `meta_ads_ad_update` |
+| Automated rules | `meta_ads_adrule_create`, `meta_ads_adrule_list`, `meta_ads_adrule_get`, `meta_ads_adrule_update`, `meta_ads_adrule_delete`, `meta_ads_adrule_history_list` |
 | Site research | `firecrawl_branding_extract`, `firecrawl_screenshots_create` |
 
 CLI users: translate tool names with the `hyper-cli` skill (`hyperai search "<tool name>"`).
@@ -99,6 +100,7 @@ Every task follows this sequence. Do not skip steps.
 | Create a campaign (any objective) | [references/discovery.md](references/discovery.md) → the matching `references/campaigns/*.md` above, then build step by step |
 | Analyze performance / query insights | [references/analytics.md](references/analytics.md) |
 | Audit an account / find optimization opportunities | [references/account-audit.md](references/account-audit.md) |
+| Set up automated rules (auto-pause, budget guards, alerts) | [references/automated-rules.md](references/automated-rules.md) |
 | Build a Meta dashboard or data app | [references/analytics.md](references/analytics.md) → [references/dashboards.md](references/dashboards.md) |
 | Analyze performance, then create a campaign | [references/analytics.md](references/analytics.md) → [references/discovery.md](references/discovery.md) → relevant campaign file |
 | Build a funnel / multiple campaigns at once (TOF/MOF/BOF) | [references/multi-campaign-funnel.md](references/multi-campaign-funnel.md) → [references/discovery.md](references/discovery.md) → per-tier campaign files |
