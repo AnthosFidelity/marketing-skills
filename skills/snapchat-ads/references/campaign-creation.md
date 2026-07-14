@@ -162,6 +162,35 @@ snapchat_ads_estimate_ad_squad_outcomes(
 
 The tool auto-adds `delivery_constraint`. If it returns OE101/`UNSUPPORTED_DELIVERY_CONSTRAINT`, outcome estimation is likely **unavailable for this account type** (PARTNER accounts are often excluded) — skip forecasting and use the Snapchat Ads Manager reach planner instead.
 
+#### Optional: audience size + suggested bid
+
+Two lighter planning calls that work per targeting spec — use them to fill in the squad's numbers instead of guessing:
+
+```python
+# Reach range for a proposed squad spec (or pass ad_squad_id for an existing squad)
+snapchat_ads_get_audience_size(
+    ad_account_id="<AD_ACCOUNT_ID>",
+    ad_squad_spec={
+        "type": "SNAP_ADS",
+        "optimization_goal": "APP_INSTALLS",
+        "placement": "CONTENT",
+        "daily_budget_micro": 50000000,
+        "targeting": {"geos": [{"country_code": "us"}],
+                      "demographics": [{"age_groups": ["21-24"]}]},
+    },
+)   # -> audience_size_minimum / audience_size_maximum
+
+# Snapchat's suggested bid range (micro-currency) for a goal + targeting —
+# use this to set bid_micro for LOWEST_COST_WITH_MAX_BID / TARGET_COST
+snapchat_ads_get_bid_estimate(
+    ad_account_id="<AD_ACCOUNT_ID>",
+    optimization_goal="IMPRESSIONS",
+    targeting={"geos": [{"country_code": "us"}]},
+)   # -> bid_estimate_minimum / bid_estimate_maximum
+```
+
+Both also accept `ad_squad_id` to evaluate an existing squad after creation.
+
 ### 5. Create ad
 
 > **Omit `type`** — it's auto-derived from the creative (a WEB_VIEW creative needs a `REMOTE_WEBPAGE` ad, SNAP_AD→SNAP_AD, APP_INSTALL→APP_INSTALL, DEEP_LINK→DEEP_LINK). Only set `type` to override.

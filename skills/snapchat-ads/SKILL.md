@@ -41,6 +41,10 @@ If `snapchat_ads_list_organizations` is not in the tool list, stop and tell the 
 
 > **IMPORTANT**: Creatives require `top_snap_media_id` (an uploaded media id) and a `headline` (≤ 34 chars). `brand_name` is ≤ 32 chars.
 
+> **IMPORTANT**: For `LOWEST_COST_WITH_MAX_BID` / `TARGET_COST`, don't guess `bid_micro` — get Snapchat's suggested range with `snapchat_ads_get_bid_estimate` (by targeting spec before building, or by ad_squad_id after). Size the audience the same way with `snapchat_ads_get_audience_size` before creating anything.
+
+> **IMPORTANT** (customer lists): `snapchat_ads_add_segment_users` requires identifiers that are **already normalized and SHA-256 hashed** (emails trimmed + lowercased before hashing; phones digits-with-country-code; mobile ad IDs lowercase with hyphens). One schema type per call (`EMAIL_SHA256`, `PHONE_SHA256`, `MOBILE_AD_ID_SHA256`), max 100,000 ids. Never send raw PII. Matching is asynchronous — segment size updates after processing.
+
 ## Tool surface
 
 | Group | Tools |
@@ -53,6 +57,8 @@ If `snapchat_ads_list_organizations` is not in the tool list, stop and tell the 
 | Media | `snapchat_ads_list_media`, `snapchat_ads_create_media`, `snapchat_ads_upload_media` |
 | Reporting | `snapchat_ads_get_stats`, `snapchat_ads_create_stats_report`, `snapchat_ads_get_stats_report` |
 | Conversion | `snapchat_ads_list_pixels`, `snapchat_ads_list_custom_conversions` |
+| Audiences | `snapchat_ads_list_segments`, `snapchat_ads_get_segment`, `snapchat_ads_create_segment`, `snapchat_ads_update_segment`, `snapchat_ads_delete_segment`, `snapchat_ads_add_segment_users`, `snapchat_ads_remove_segment_users` |
+| Planning estimates | `snapchat_ads_get_audience_size`, `snapchat_ads_get_bid_estimate`, `snapchat_ads_get_audience_insights` |
 | Targeting | `snapchat_ads_search_targeting` |
 
 > **All reference files live in `references/`.** Read them at `references/<file>` (e.g. `references/discovery.md`).
@@ -64,6 +70,8 @@ If `snapchat_ads_list_organizations` is not in the tool list, stop and tell the 
 | Launch a Snapchat campaign | [references/discovery.md](references/discovery.md) → [references/campaign-creation.md](references/campaign-creation.md) |
 | Upload media / create creatives / ad squads / ads | [references/campaign-creation.md](references/campaign-creation.md) |
 | Resolve targeting (geo, demo, interests, devices) | [references/targeting.md](references/targeting.md) |
+| Build custom audiences / lookalikes / audience insights | [references/targeting.md](references/targeting.md) |
+| Estimate audience size / get a suggested bid | [references/campaign-creation.md](references/campaign-creation.md) |
 | Set up Snap Pixel / custom conversions | [references/conversions-and-reporting.md](references/conversions-and-reporting.md) |
 | Pull stats / async reports / update or delete entities | [references/conversions-and-reporting.md](references/conversions-and-reporting.md) |
 | Goal not yet clear | [references/discovery.md](references/discovery.md) — discovery clarifies the goal |
@@ -88,6 +96,8 @@ Discover org/account → audit account → research (objective, audience, budget
 | `bid_micro` required for non-AUTO_BID strategies | Provide `bid_micro` for `LOWEST_COST_WITH_MAX_BID` / `TARGET_COST`. |
 | Media > 32 MB | Handled automatically (chunked upload, up to 1 GB). |
 | Partial updates | Use the update tools (PATCH) with the correct parent id — never resend the whole object. |
+| Customer-list upload "succeeds" but the segment stays small | Identifiers must be normalized + SHA-256 hashed before upload; matching is asynchronous and only hashes that match Snapchat users count. Check the segment's `approximate_number_users` after processing. |
+| Lookalike creation rejected | Lookalikes need a healthy seed: a FIRST_PARTY segment with enough matched users, `countries` (ISO-2), and `retention_in_days` ≤ 180. |
 
 ## Safety Rules
 
