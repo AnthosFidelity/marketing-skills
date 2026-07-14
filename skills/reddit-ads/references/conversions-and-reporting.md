@@ -16,6 +16,8 @@ reddit_ads_post_conversion_events(
 )
 ```
 
+**App-install signal (app-promotion campaigns).** For `APP_INSTALLS` campaigns, verify the MMP conversion signal the way you'd check a pixel: `reddit_ads_get_app_last_fired_at_report(app_id="<APP_ID>")` returns when each App Install event type (install, purchase, sign-up, …) last fired. A `null` means that event has never fired — a red flag before or after launch. Discover apps with `reddit_ads_list_apps(ad_account_id="<AD_ACCOUNT_ID>")`.
+
 ## Phase 8: Reporting
 
 ```python
@@ -42,5 +44,7 @@ reddit_ads_update_campaign(campaign_id="<ID>", configured_status="ACTIVE")
 reddit_ads_update_ad_group(ad_group_id="<ID>", goal_value=30000000)
 reddit_ads_update_ad(ad_id="<ID>", configured_status="PAUSED")
 ```
+
+Posts are the exception — they're **immutable** except for comments. `reddit_ads_update_post(post_id="<ID>", allow_comments=False)` toggles comments only (pass `is_structured_post=True` for a structured post); to change creative, create a new structured post.
 
 Delete honors Reddit's archive-then-delete rule — `reddit_ads_delete_campaign` / `_delete_ad_group` / `_delete_ad` archive the entity if it isn't yet hard-deletable (ARCHIVED for 3+ hours), and permanently delete once eligible. Inspect the returned `configured_status` to see which happened, and tell the user when a hard delete will be possible.
