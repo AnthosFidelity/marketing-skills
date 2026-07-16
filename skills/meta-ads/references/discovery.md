@@ -6,7 +6,7 @@ Run this phase before any campaign creation. It establishes account context, ver
 
 ## Step 1: Account selection
 
-Call `meta_ads_ad_accounts_list` with `{"detail": "id_only"}`.
+Call `meta_ads_adaccount_list` with `{"detail": "id_only"}`.
 
 - **Multiple accounts returned**: Ask the user to select one before proceeding. Do not assume.
 - **Single account returned**: Inform the user and proceed.

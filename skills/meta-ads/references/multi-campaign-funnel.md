@@ -71,7 +71,7 @@ This is the critical sequence. Setting a campaign budget activates CBO and block
 1. **Create ALL campaigns first with no budget.** Every campaign, no `daily_budget`.
 2. **Create the manual ad sets** (MOF, BOF) with their `daily_budget` at the ad set level. With no campaign budget, there's no CBO lock.
 3. **Create the Advantage+ ad sets** (TOF) with no budget (add `bid_amount` only if the account's bid strategy requires it — see below).
-4. **Add `daily_budget` to the Advantage+ campaigns** via `meta_ads_campaigns_update`, now that their ad sets exist.
+4. **Add `daily_budget` to the Advantage+ campaigns** via `meta_ads_campaign_update`, now that their ad sets exist.
 5. **Create the ads** for each ad set.
 6. **Preview, then leave everything PAUSED** for user review.
 
@@ -92,7 +92,7 @@ If the account's default bid strategy is `LOWEST_COST_WITH_BID_CAP`, **every** a
 Because each tier is built step by step, a mid-build failure leaves the earlier tiers already created. There is no automatic rollback — clean up manually before retrying:
 
 1. Note which campaigns/ad sets/ads were created before the failure (the responses you captured).
-2. Delete the incomplete artifacts with `meta_ads_campaigns_delete` (deleting a campaign removes its ad sets and ads).
+2. Delete the incomplete artifacts with `meta_ads_campaign_delete` (deleting a campaign removes its ad sets and ads).
 3. Fix the root cause (validate audiences, resolve the bid strategy, correct budget mode).
 4. Rebuild from a clean state.
 

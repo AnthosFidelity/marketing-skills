@@ -10,8 +10,8 @@ Re-read [../constraints.md](../constraints.md). Most relevant:
 - Budget in cents (×100)
 - `targeting_automation` inside `targeting`
 - Budget at campaign level for Advantage+
-- `meta_ads_ad_sets_create` uses `mode` + `input_data` — all fields inside `input_data`
-- `meta_ads_create` takes a single `input_data` dict — no separate top-level args
+- `meta_ads_adset_create` takes `ad_account_id` (numeric, no `act_` prefix) + a `body` dict — all ad set fields inside `body`
+- `meta_ads_ad_create` takes `ad_account_id` + a `body` dict — no separate top-level args
 - Use `meta_ads_campaigns_activate()`, not `update_campaign(status="ACTIVE")`
 
 `promoted_object` is **not required** for OUTCOME_TRAFFIC. No pixel needed.
@@ -59,12 +59,14 @@ Re-read [../constraints.md](../constraints.md). Most relevant:
 ### 1. Create campaign
 
 ```python
-meta_ads_campaigns_create(
-    account_id="act_123456789",
-    name="Traffic - [Business] - [Date]",
-    objective="OUTCOME_TRAFFIC",
-    status="PAUSED",
-    daily_budget=2000    # $20/day in cents — Advantage+ only; omit for manual
+meta_ads_campaign_create(
+    ad_account_id="123456789",
+    body={
+        "name": "Traffic - [Business] - [Date]",
+        "objective": "OUTCOME_TRAFFIC",
+        "status": "PAUSED",
+        "daily_budget": 2000    # $20/day in cents — Advantage+ only; omit for manual
+    }
 )
 ```
 
@@ -72,22 +74,27 @@ meta_ads_campaigns_create(
 
 ### 2. Create ad set
 
-> `meta_ads_ad_sets_create` uses a `mode` + `input_data` pattern. Every ad set field goes inside `input_data`.
+> `meta_ads_adset_create` takes `ad_account_id` (numeric, no `act_` prefix) plus a `body` dict. Every ad set field goes inside `body`.
 
 **Advantage+ (default):**
 
 ```json
 {
-  "mode": "advantage_plus",
-  "input_data": {
-    "account_id": "act_123456789",
+  "ad_account_id": "123456789",
+  "body": {
     "name": "US Broad - Website Traffic",
     "campaign_id": "<campaign_id>",
     "optimization_goal": "LINK_CLICKS",
     "billing_event": "IMPRESSIONS",
     "targeting": {
-      "geo_locations": {"countries": ["US"]},
-      "targeting_automation": {"advantage_audience": 1}
+      "geo_locations": {
+        "countries": [
+          "US"
+        ]
+      },
+      "targeting_automation": {
+        "advantage_audience": 1
+      }
     }
   }
 }
@@ -99,16 +106,19 @@ meta_ads_campaigns_create(
 
 ```json
 {
-  "mode": "manual",
-  "input_data": {
-    "account_id": "act_123456789",
+  "ad_account_id": "123456789",
+  "body": {
     "name": "US Adults 25-44",
     "campaign_id": "<campaign_id>",
     "optimization_goal": "LINK_CLICKS",
     "billing_event": "IMPRESSIONS",
     "daily_budget": 2000,
     "targeting": {
-      "geo_locations": {"countries": ["US"]},
+      "geo_locations": {
+        "countries": [
+          "US"
+        ]
+      },
       "age_min": 25,
       "age_max": 44
     }
@@ -116,7 +126,7 @@ meta_ads_campaigns_create(
 }
 ```
 
-> **Bid cap requested?** Pass `bid_strategy` as a **top-level** param (not in `input_data`) and `bid_amount` inside `input_data` — see [../constraints.md](../constraints.md) section 16.
+> **Bid cap requested?** Pass `bid_strategy` and `bid_amount` (cents) inside `body` — the toolkit validates the pairing up front. See [../constraints.md](../constraints.md) section 16.
 
 > **Targeting regions / cities / DMAs (not whole countries)?** Resolve the numeric geo keys with `meta_ads_targeting_search` first — never hand-write them. See [../constraints.md](../constraints.md) section 17.
 
@@ -135,12 +145,12 @@ meta_ads_ad_images_upload(
 
 ### 4. Create ad
 
-> **CRITICAL**: `meta_ads_create` takes a **single `input_data` dict**. No separate top-level args.
+> **CRITICAL**: `meta_ads_ad_create` takes `ad_account_id` plus a single `body` dict. No separate top-level args.
 
 ```json
 {
-  "input_data": {
-    "account_id": "act_123456789",
+  "ad_account_id": "123456789",
+  "body": {
     "name": "Traffic Ad - [Page Name]",
     "adset_id": "<adset_id>",
     "creative": {
@@ -149,7 +159,9 @@ meta_ads_ad_images_upload(
         "link_data": {
           "link": "https://example.com/page",
           "image_hash": "<image_hash>",
-          "call_to_action": {"type": "LEARN_MORE"},
+          "call_to_action": {
+            "type": "LEARN_MORE"
+          },
           "message": "<primary_text>",
           "name": "<headline>",
           "description": "<description>"
@@ -182,6 +194,6 @@ meta_ads_campaigns_activate(campaign_id="<campaign_id>")
 | Symptom | Cause | Fix |
 |---|---|---|
 | Budget rejected | Passed dollars not cents | Multiply by 100 |
-| Ad set error: unexpected argument | Fields outside `input_data` | All fields must be inside `input_data` dict |
+| Ad set error: unexpected argument | Fields outside `body` | All fields must be inside the `body` dict |
 | Campaign ACTIVE but no traffic | Used `update_campaign(status="ACTIVE")` | Use `meta_ads_campaigns_activate()` |
 | `targeting_automation` error | Placed at top level of ad set | Move inside `targeting` object |

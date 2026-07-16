@@ -1,6 +1,13 @@
 ---
 name: blog-generation
 description: "Generate one excellent, on-brand blog post per run for any business, built to rank on Google and get cited by AI search (ChatGPT, Claude, Perplexity, AI Overviews). A stateful engine: reads a brand strategy doc, picks a fresh topic (never repeats), researches, writes in the brand's voice, and logs the post back. Use when the user wants to write a blog post, run a daily or recurring blog task, or generate SEO / AEO / blog content. For keyword data and audits, defer to seo-research."
+requires_toolkits:
+  - hyperseo
+  - wordpress_toolkit
+  - wordpress_org_toolkit
+  - ghost_toolkit
+  - wix_toolkit
+  - webflow_toolkit
 icon: hyperseo
 short_description: Generate one on-brand blog post per run, built to rank and get cited by AI search.
 ---

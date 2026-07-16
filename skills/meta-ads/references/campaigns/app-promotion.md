@@ -11,8 +11,8 @@ Re-read [../constraints.md](../constraints.md). Most relevant:
 - `promoted_object` required for OUTCOME_APP_PROMOTION — missing it causes a cryptic API error
 - `targeting_automation` inside `targeting`
 - Budget at campaign level for Advantage+
-- `meta_ads_ad_sets_create` uses `mode` + `input_data` — all fields inside `input_data`
-- `meta_ads_create` takes a single `input_data` dict — no separate top-level args
+- `meta_ads_adset_create` takes `ad_account_id` (numeric, no `act_` prefix) + a `body` dict — all ad set fields inside `body`
+- `meta_ads_ad_create` takes `ad_account_id` + a `body` dict — no separate top-level args
 - Use `meta_ads_campaigns_activate()`, not `update_campaign(status="ACTIVE")`
 
 ---
@@ -59,19 +59,21 @@ Default to APP_INSTALLS unless re-engagement is specified.
 - [ ] Budget confirmed and converted to cents
 - [ ] Page ID captured explicitly from discovery
 - [ ] Creative assets ready or will use app store screenshots
-- [ ] Adding to an **existing** ad set? Call `meta_ads_ad_sets_get` first and copy `promoted_object.object_store_url` into the creative link verbatim
+- [ ] Adding to an **existing** ad set? Call `meta_ads_adset_get` first and copy `promoted_object.object_store_url` into the creative link verbatim
 
 ### 1. Create campaign
 
 ```python
-meta_ads_campaigns_create(
-    account_id="act_123456789",
-    name="App Installs - [App Name] - [Date]",
-    objective="OUTCOME_APP_PROMOTION",
-    status="PAUSED",
-    daily_budget=2000,              # $20/day in cents — Advantage+ only; omit for manual
-    is_skadnetwork_attribution=True # REQUIRED if the ad set targets iOS 14+ (see note in step 2);
-                                    # campaign-level and immutable — can't be added later
+meta_ads_campaign_create(
+    ad_account_id="123456789",
+    body={
+        "name": "App Installs - [App Name] - [Date]",
+        "objective": "OUTCOME_APP_PROMOTION",
+        "status": "PAUSED",
+        "daily_budget": 2000,              # $20/day in cents — Advantage+ only; omit for manual
+        "is_skadnetwork_attribution": True # REQUIRED if the ad set targets iOS 14+ (see note in step 2);
+                                        # campaign-level and immutable — can't be added later
+    }
 )
 ```
 
@@ -79,22 +81,27 @@ meta_ads_campaigns_create(
 
 ### 2. Create ad set
 
-> `meta_ads_ad_sets_create` uses a `mode` + `input_data` pattern. Every ad set field goes inside `input_data`.
+> `meta_ads_adset_create` takes `ad_account_id` (numeric, no `act_` prefix) plus a `body` dict. Every ad set field goes inside `body`.
 
 **Advantage+ (default):**
 
 ```json
 {
-  "mode": "advantage_plus",
-  "input_data": {
-    "account_id": "act_123456789",
+  "ad_account_id": "123456789",
+  "body": {
     "name": "US Broad - App Installs",
     "campaign_id": "<campaign_id>",
     "optimization_goal": "APP_INSTALLS",
     "billing_event": "IMPRESSIONS",
     "targeting": {
-      "geo_locations": {"countries": ["US"]},
-      "targeting_automation": {"advantage_audience": 1}
+      "geo_locations": {
+        "countries": [
+          "US"
+        ]
+      },
+      "targeting_automation": {
+        "advantage_audience": 1
+      }
     },
     "promoted_object": {
       "application_id": "<app_id>",
@@ -112,16 +119,19 @@ meta_ads_campaigns_create(
 
 ```json
 {
-  "mode": "manual",
-  "input_data": {
-    "account_id": "act_123456789",
+  "ad_account_id": "123456789",
+  "body": {
     "name": "US 18-35 - App Installs",
     "campaign_id": "<campaign_id>",
     "optimization_goal": "APP_INSTALLS",
     "billing_event": "IMPRESSIONS",
     "daily_budget": 2000,
     "targeting": {
-      "geo_locations": {"countries": ["US"]},
+      "geo_locations": {
+        "countries": [
+          "US"
+        ]
+      },
       "age_min": 18,
       "age_max": 35
     },
@@ -138,7 +148,7 @@ meta_ads_campaigns_create(
 > **iOS 14+ targeting (SKAdNetwork).** To target "iOS 14 and above" set
 > `targeting.user_os: ["iOS_ver_14.0_and_above"]` on the ad set **and** create the parent
 > campaign with `is_skadnetwork_attribution: true` (a **campaign-level** flag on
-> `meta_ads_campaigns_create`, not an ad-set field). Without it Meta silently clamps the
+> `meta_ads_campaign_create`, not an ad-set field). Without it Meta silently clamps the
 > target to `iOS_ver_14.0_to_14.4` and the ad set shows as **"Apple App Store (iOS 13.7 or
 > earlier)"** in Ads Manager. The flag is **immutable after the campaign is created** — if
 > you forgot it, delete the campaign and recreate it. Creating an open-ended-iOS app ad set
@@ -163,9 +173,9 @@ meta_ads_ad_images_upload(account_id="act_123456789", image_url="<url>")
 
 ### 4. Create ad
 
-> **CRITICAL**: `meta_ads_create` takes a **single `input_data` dict**. No separate top-level args.
+> **CRITICAL**: `meta_ads_ad_create` takes `ad_account_id` plus a single `body` dict. No separate top-level args.
 
-> **CRITICAL — the creative link MUST match the ad set's `object_store_url` exactly.** Meta rejects the ad with *"Object store URL does not match promoted object"* if the creative's CTA destination differs from the store URL on the ad set's `promoted_object`. **Never guess or hand-type the store URL.** If you did not just create the ad set yourself (e.g. you are adding creatives to an existing ad set), call `meta_ads_ad_sets_get(<adset_id>)` **first**, read `promoted_object.object_store_url`, and copy that exact value into:
+> **CRITICAL — the creative link MUST match the ad set's `object_store_url` exactly.** Meta rejects the ad with *"Object store URL does not match promoted object"* if the creative's CTA destination differs from the store URL on the ad set's `promoted_object`. **Never guess or hand-type the store URL.** If you did not just create the ad set yourself (e.g. you are adding creatives to an existing ad set), call `meta_ads_adset_get(<adset_id>)` **first**, read `promoted_object.object_store_url`, and copy that exact value into:
 > - `link_data.link`, and
 > - `link_data.call_to_action.value.link` (if you set a CTA value)
 >
@@ -173,8 +183,8 @@ meta_ads_ad_images_upload(account_id="act_123456789", image_url="<url>")
 
 ```json
 {
-  "input_data": {
-    "account_id": "act_123456789",
+  "ad_account_id": "123456789",
+  "body": {
     "name": "App Install Ad - [Creative]",
     "adset_id": "<adset_id>",
     "creative": {
@@ -183,7 +193,9 @@ meta_ads_ad_images_upload(account_id="act_123456789", image_url="<url>")
         "link_data": {
           "link": "<EXACT object_store_url from the ad set's promoted_object>",
           "image_hash": "<image_hash>",
-          "call_to_action": {"type": "DOWNLOAD"},
+          "call_to_action": {
+            "type": "DOWNLOAD"
+          },
           "message": "Download [App Name] and [key benefit].",
           "name": "Get the App"
         }
@@ -211,11 +223,11 @@ meta_ads_campaigns_activate(campaign_id="<campaign_id>")  # when user approves
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| `Object store URL does not match promoted object` (code 100) | Creative CTA link ≠ ad set's `promoted_object.object_store_url` | Read `promoted_object.object_store_url` via `meta_ads_ad_sets_get` and copy it exactly into the creative's `link` (don't guess the URL) |
+| `Object store URL does not match promoted object` (code 100) | Creative CTA link ≠ ad set's `promoted_object.object_store_url` | Read `promoted_object.object_store_url` via `meta_ads_adset_get` and copy it exactly into the creative's `link` (don't guess the URL) |
 | Cryptic API error on ad set | Missing `promoted_object` | Add `application_id` + `object_store_url` |
 | "App not found" error | Wrong `application_id` | Verify in Meta App Dashboard, not app store |
 | `object_store_url` invalid | URL format wrong or missing https:// | Use full URL with https:// |
 | Budget rejected | Passed dollars not cents | Multiply by 100 |
-| Ad set error: unexpected argument | Fields outside `input_data` | All fields must be inside `input_data` dict |
+| Ad set error: unexpected argument | Fields outside `body` | All fields must be inside the `body` dict |
 | Campaign ACTIVE but no installs | Used `update_campaign(status="ACTIVE")` | Use `meta_ads_campaigns_activate()` |
-| Ad set shows "iOS 13.7 or earlier" / `user_os` reads `iOS_ver_14.0_to_14.4` | Parent **campaign** not created as iOS-14 SKAdNetwork, so Meta clamped the open-ended target | Recreate the campaign with `meta_ads_campaigns_create(..., is_skadnetwork_attribution=true)` — it's a campaign-level flag, immutable after creation |
+| Ad set shows "iOS 13.7 or earlier" / `user_os` reads `iOS_ver_14.0_to_14.4` | Parent **campaign** not created as iOS-14 SKAdNetwork, so Meta clamped the open-ended target | Recreate the campaign with `meta_ads_campaign_create(..., is_skadnetwork_attribution=true)` — it's a campaign-level flag, immutable after creation |
