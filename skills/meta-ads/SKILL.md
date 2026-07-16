@@ -63,7 +63,11 @@ CLI users: translate tool names with the `hyper-cli` skill (`hyperai search "<to
 
 > **REGULATED ADVERTISERS NEED `special_ad_categories`**: For gambling, financial, housing, employment, credit, or political advertisers, declare the category on `meta_ads_campaign_create` (e.g. `special_ad_categories=["ONLINE_GAMBLING_AND_GAMING"]`).
 
-> **EU-TARGETED AD SETS NEED DSA FIELDS**: If an ad set targets the EU, set `dsa_beneficiary` and `dsa_payor` on `meta_ads_adset_create` (who benefits from / pays for the ad) — required under the EU Digital Services Act, or delivery is restricted.
+> **FIXED RUN WINDOWS GO ON THE AD SET**: When the user gives a run duration or dates ("run it for 7 days", "through end of month"), set `start_time` AND `end_time` (ISO 8601) on `meta_ads_ad_sets_create`. A daily-budget ad set with no `end_time` runs continuously until manually paused — the requested window is silently lost.
+
+> **GROUND COPY IN THE DESTINATION PAGE (RESEARCH FIRST)**: When the brief centers on a URL ("build a campaign for https://..."), fetch that page FIRST (`web_pages_fetch`) — before discovery and before writing any copy — and ground ad copy in what the page actually says (product name, value props, offer). Never invent copy for a page you have not read; even when the user supplies exact copy or headlines, fetch the page to verify the destination matches the offer.
+
+> **EU-TARGETED AD SETS NEED DSA FIELDS**: If an ad set targets the EU, set `dsa_beneficiary` and `dsa_payor` on `meta_ads_ad_sets_create` (who benefits from / pays for the ad) — required under the EU Digital Services Act, or delivery is restricted.
 
 > **UTMs ON EVERY DESTINATION AD (`url_tags`)**: Set `url_tags` (UTM params, e.g. `utm_source=meta&utm_medium=paid&utm_campaign=...`) on every creative that drives to a destination — downstream measurement (e.g. AppsFlyer + a data warehouse) stitches on these, so an ad without UTMs is effectively unmeasurable. Use the advertiser's canonical template; if you don't have one, ask rather than ship untracked.
 
