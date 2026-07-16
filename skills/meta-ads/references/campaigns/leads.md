@@ -11,8 +11,8 @@ Re-read [../constraints.md](../constraints.md). Every rule there applies here. M
 - `promoted_object` required for OUTCOME_LEADS — missing it, or missing any required field within it, causes a validation error
 - `targeting_automation` inside `targeting`
 - Budget at campaign level for Advantage+
-- `meta_ads_ad_sets_create` uses `mode` + `input_data` — all fields inside `input_data`
-- `meta_ads_create` takes a single `input_data` dict — no separate top-level args
+- `meta_ads_adset_create` takes `ad_account_id` (numeric, no `act_` prefix) + a `body` dict — all ad set fields inside `body`
+- `meta_ads_ad_create` takes `ad_account_id` + a `body` dict — no separate top-level args
 - Use `meta_ads_campaigns_activate()`, not `update_campaign(status="ACTIVE")`
 - **"Bid amount required" errors MUST be surfaced to the user — do NOT change optimization_goal as a workaround**
 
@@ -29,7 +29,7 @@ Re-read [../constraints.md](../constraints.md). Every rule there applies here. M
 | Landing page URL (if website leads) | Ask the user |
 | Budget amount + currency | Ask the user |
 | Daily or lifetime | Ask; lifetime needs start + end dates |
-| Ad creative (image_hash or creative_id) | Upload via `meta_ads_ad_images_upload`, or list existing via `meta_ads_ad_creatives_list` |
+| Ad creative (image_hash or creative_id) | Upload via `meta_ads_ad_images_upload`, or list existing via `meta_ads_creative_list` |
 
 **Never proceed to campaign creation without all required inputs confirmed.**
 
@@ -80,12 +80,14 @@ Surface any non-PASS items before continuing. A failing pixel health check means
 ### 2. Create campaign
 
 ```python
-meta_ads_campaigns_create(
-    account_id="act_123456789",
-    name="Leads - [Business] - [Date]",
-    objective="OUTCOME_LEADS",
-    status="PAUSED",
-    daily_budget=2000    # $20/day in cents — Advantage+ only; omit for manual
+meta_ads_campaign_create(
+    ad_account_id="123456789",
+    body={
+        "name": "Leads - [Business] - [Date]",
+        "objective": "OUTCOME_LEADS",
+        "status": "PAUSED",
+        "daily_budget": 2000    # $20/day in cents — Advantage+ only; omit for manual
+    }
 )
 ```
 
@@ -103,7 +105,7 @@ Skip if using the native lead form path — `promoted_object` uses only `page_id
 
 ### 4. Create ad set
 
-> `meta_ads_ad_sets_create` uses a `mode` + `input_data` pattern. Every ad set field goes inside `input_data`.
+> `meta_ads_adset_create` takes `ad_account_id` (numeric, no `act_` prefix) plus a `body` dict. Every ad set field goes inside `body`.
 
 > **Bid strategy warning**: If the account has a non-default bid strategy (e.g. LOWEST_COST_WITH_BID_CAP), ad set creation will fail with "Bid Amount Required." If you see this error, **stop immediately and surface it to the user** — do NOT add `bid_amount` or change `optimization_goal` as workarounds. See constraints.md section 14.
 
@@ -111,16 +113,21 @@ Skip if using the native lead form path — `promoted_object` uses only `page_id
 
 ```json
 {
-  "mode": "advantage_plus",
-  "input_data": {
-    "account_id": "act_123456789",
+  "ad_account_id": "123456789",
+  "body": {
     "name": "US Broad - Demo Requests",
     "campaign_id": "<campaign_id>",
     "optimization_goal": "LEAD_GENERATION",
     "billing_event": "IMPRESSIONS",
     "targeting": {
-      "geo_locations": {"countries": ["US"]},
-      "targeting_automation": {"advantage_audience": 1}
+      "geo_locations": {
+        "countries": [
+          "US"
+        ]
+      },
+      "targeting_automation": {
+        "advantage_audience": 1
+      }
     },
     "promoted_object": {
       "pixel_id": "<pixel_id>",
@@ -137,16 +144,21 @@ Skip if using the native lead form path — `promoted_object` uses only `page_id
 
 ```json
 {
-  "mode": "advantage_plus",
-  "input_data": {
-    "account_id": "act_123456789",
+  "ad_account_id": "123456789",
+  "body": {
     "name": "US Broad - Lead Form",
     "campaign_id": "<campaign_id>",
     "optimization_goal": "LEAD_GENERATION",
     "billing_event": "IMPRESSIONS",
     "targeting": {
-      "geo_locations": {"countries": ["US"]},
-      "targeting_automation": {"advantage_audience": 1}
+      "geo_locations": {
+        "countries": [
+          "US"
+        ]
+      },
+      "targeting_automation": {
+        "advantage_audience": 1
+      }
     },
     "promoted_object": {
       "page_id": "<page_id>"
@@ -163,16 +175,19 @@ Skip if using the native lead form path — `promoted_object` uses only `page_id
 
 ```json
 {
-  "mode": "manual",
-  "input_data": {
-    "account_id": "act_123456789",
+  "ad_account_id": "123456789",
+  "body": {
     "name": "UK Decision Makers 30-55",
     "campaign_id": "<campaign_id>",
     "optimization_goal": "LEAD_GENERATION",
     "billing_event": "IMPRESSIONS",
     "daily_budget": 3000,
     "targeting": {
-      "geo_locations": {"countries": ["GB"]},
+      "geo_locations": {
+        "countries": [
+          "GB"
+        ]
+      },
       "age_min": 30,
       "age_max": 55
     },
@@ -226,22 +241,24 @@ meta_ads_ad_images_upload(
 
 → Capture `image_hash`.
 
-#### Creating a creative from scratch with `meta_ads_ad_creatives_create`
+#### Creating a creative from scratch with `meta_ads_creative_create`
 
 Use this when you need full control over the creative spec (e.g., native lead form ads). `name` is a **required** positional argument — it will fail silently if omitted.
 
 ```python
-meta_ads_ad_creatives_create(
-    account_id="act_123456789",
-    name="Creative Name",        # REQUIRED — not optional
-    object_story_spec={
-        "page_id": "<page_id>", # REQUIRED at top level — never inside link_data
-        "link_data": {
-            "message": "<primary ad copy>",
-            "link": "<destination_url>",
-            "description": "<secondary copy or headline>",
-            "picture": "<image_url>",
-            "call_to_action": {"type": "SIGN_UP"}
+meta_ads_creative_create(
+    ad_account_id="123456789",
+    body={
+        "name": "Creative Name",        # REQUIRED — not optional
+        "object_story_spec": {
+            "page_id": "<page_id>", # REQUIRED at top level — never inside link_data
+            "link_data": {
+                "message": "<primary ad copy>",
+                "link": "<destination_url>",
+                "description": "<secondary copy or headline>",
+                "picture": "<image_url>",
+                "call_to_action": {"type": "SIGN_UP"}
+            }
         }
     }
 )
@@ -266,32 +283,32 @@ meta_ads_ad_creatives_create(
 
 If the user has provided or selected an **existing creative** (`creative_id`), skip the upload — but verify the destination URL first.
 
-`meta_ads_ad_creatives_list` returns `link_url: null` in its list response, so you cannot verify the destination from the list alone. Call `meta_ads_ad_creatives_get(creative_id)` on the selected creative to retrieve the actual `link_url` before attaching it:
+`meta_ads_creative_list` returns `link_url: null` in its list response, so you cannot verify the destination from the list alone. Call `meta_ads_creative_get(creative_id)` on the selected creative to retrieve the actual `link_url` before attaching it:
 
 ```python
-meta_ads_ad_creatives_get(creative_id="33892633203717215")
+meta_ads_creative_get(creative_id="33892633203717215")
 # Check the returned link_url matches the user's intended landing page
 ```
 
 If the destination doesn't match, tell the user and either select a different creative or create a new inline one.
 
-**Selecting among multiple existing creatives:** When `meta_ads_ad_creatives_list` returns several options, choose based on:
+**Selecting among multiple existing creatives:** When `meta_ads_creative_list` returns several options, choose based on:
 1. Body copy alignment with campaign goal (lead-focused language > viral/social tone)
 2. Headline relevance to the offer or CTA
-3. Destination URL (verify via `meta_ads_ad_creatives_get` — the list shows `null`)
+3. Destination URL (verify via `meta_ads_creative_get` — the list shows `null`)
 
 If you're unsure, show the user the top 2–3 options (name + body copy) and let them choose.
 
 ### 6. Create ad
 
-> **CRITICAL**: `meta_ads_create` takes a **single `input_data` dict**. No separate top-level args.
+> **CRITICAL**: `meta_ads_ad_create` takes `ad_account_id` plus a single `body` dict. No separate top-level args.
 
 **With new inline creative (image_hash):**
 
 ```json
 {
-  "input_data": {
-    "account_id": "act_123456789",
+  "ad_account_id": "123456789",
+  "body": {
     "name": "Lead Ad - [Creative Name]",
     "adset_id": "<adset_id>",
     "creative": {
@@ -300,7 +317,9 @@ If you're unsure, show the user the top 2–3 options (name + body copy) and let
         "link_data": {
           "link": "https://example.com/contact",
           "image_hash": "<image_hash>",
-          "call_to_action": {"type": "LEARN_MORE"},
+          "call_to_action": {
+            "type": "LEARN_MORE"
+          },
           "message": "<primary_text>",
           "name": "<headline>",
           "description": "<description>"
@@ -315,8 +334,8 @@ If you're unsure, show the user the top 2–3 options (name + body copy) and let
 
 ```json
 {
-  "input_data": {
-    "account_id": "act_123456789",
+  "ad_account_id": "123456789",
+  "body": {
     "name": "Lead Ad - [Creative Name]",
     "adset_id": "<adset_id>",
     "creative": {
@@ -345,7 +364,7 @@ Wait for explicit user approval before activating.
 ```python
 meta_ads_campaigns_activate(campaign_id="<campaign_id>")
 # Activates campaign + ad sets + ads together
-# NOT: meta_ads_campaigns_update(status="ACTIVE") — that leaves ad sets PAUSED
+# NOT: meta_ads_campaign_update(status="ACTIVE") — that leaves ad sets PAUSED
 ```
 
 ---

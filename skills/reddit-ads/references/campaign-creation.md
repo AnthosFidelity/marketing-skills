@@ -109,14 +109,62 @@ reddit_ads_generate_bid_suggestion(
 
 ```python
 reddit_ads_list_posts(profile_id="<PROFILE_ID>")
+reddit_ads_list_structured_posts(profile_id="<PROFILE_ID>")   # posts made via the structured-post API
 ```
 
 **Post types:** `IMAGE`, `VIDEO`, `CAROUSEL`, `TEXT` (NOT `LINK`). For an ad with a destination — and for **any CONVERSIONS campaign** — you must use `IMAGE`/`VIDEO`/`CAROUSEL`; **`TEXT` posts are free-form and rejected in CONVERSIONS ads**.
 
-**IMAGE post (the common case).** The media + CTA go in a `content[]` block, and `media_url` must reference an **already-uploaded Reddit asset**. Find one first:
+#### Recommended: create a post from media by URL (`reddit_ads_create_structured_post`)
+
+Use `reddit_ads_create_structured_post` when you have a fresh image/video (e.g. from `ad-creative-generation`) and **no pre-uploaded Reddit asset**. You pass the media as a URL and **Reddit downloads and re-hosts it** — no separate upload step. Creation is an **async job**: the tool submits it, polls up to `wait_seconds` (default 45), and returns the job. On `status="SUCCESS"` the job carries the new **`post_id`** — use it on the ad. If it's still `QUEUED`/`PROCESSING`, poll `reddit_ads_get_structured_post_job(post_creation_job_id=...)`; on `CLIENT_ERROR`/`SERVER_ERROR` read `error_message`.
 
 ```python
-reddit_ads_list_creative_assets(profile_id="<PROFILE_ID>")   # grab media.permanent_url
+# IMAGE — needs media_url + destination_url
+job = reddit_ads_create_structured_post(
+    profile_id="<PROFILE_ID>",
+    type="IMAGE",
+    headline="Stop juggling 30 marketing tools — Hyper AI does it all.",
+    media_url="https://cdn.example.com/creative.png",   # Reddit fetches + re-hosts this
+    destination_url="https://example.com/spring",
+    display_url="example.com",                            # must match the destination domain
+    call_to_action="Sign Up",                            # display label, NOT "SIGN_UP"
+)
+# job.status == "SUCCESS" -> job.post_id is the ad's post_id
+
+# VIDEO — also needs thumbnail_url (an image URL)
+reddit_ads_create_structured_post(
+    profile_id="<PROFILE_ID>", type="VIDEO", headline="See Hyper in 30 seconds",
+    media_url="https://cdn.example.com/promo.mp4",
+    thumbnail_url="https://cdn.example.com/promo-thumb.png",
+    destination_url="https://example.com", call_to_action="Watch Now",
+)
+
+# CAROUSEL — 1–6 cards, each with its own destination + CTA
+reddit_ads_create_structured_post(
+    profile_id="<PROFILE_ID>", type="CAROUSEL", headline="Three ways Hyper helps",
+    carousel=[
+        {"image_url": "https://cdn.example.com/1.png", "destination_url": "https://example.com/a",
+         "caption": "Automate ads", "call_to_action": "Learn More"},
+        {"image_url": "https://cdn.example.com/2.png", "destination_url": "https://example.com/b",
+         "caption": "One dashboard", "call_to_action": "Sign Up"},
+    ],
+)
+
+# PROMOTED_POST — promote an existing SFW community post by id
+reddit_ads_create_structured_post(
+    profile_id="<PROFILE_ID>", type="PROMOTED_POST", headline="Community pick",
+    promoted_post_id="t3_abc123",
+)
+```
+
+> `call_to_action` is a **display label** (`"Sign Up"`, `"Learn More"`, `"Shop Now"`, `"Install"`, `"Watch Now"`, …), never an enum constant. For a fully custom creative, pass an API-shaped dict via `creative=` (it overrides the built one), and any extra top-level fields via `input_data`.
+
+#### Alternative: legacy `reddit_ads_create_post` (pre-uploaded assets only)
+
+`reddit_ads_create_post` cannot fetch media by URL — its `content[].media_url` must reference an **already-uploaded Reddit asset**. Use it only when reusing an existing asset; otherwise prefer the structured-post tool above.
+
+```python
+reddit_ads_list_creative_assets(profile_id="<PROFILE_ID>")   # grab an existing asset URL
 
 reddit_ads_create_post(
     profile_id="<PROFILE_ID>",
@@ -124,7 +172,7 @@ reddit_ads_create_post(
     headline="Stop juggling 30 marketing tools — Hyper AI does it all.",
     input_data={
         "content": [{
-            "media_url": "https://i.redd.it/<asset>.jpeg",  # from list_creative_assets (or upload one)
+            "media_url": "https://i.redd.it/<asset>.jpeg",  # MUST already exist on Reddit
             "destination_url": "https://example.com",
             "display_url": "example.com",
             "call_to_action": "Sign Up",                     # display label, NOT "SIGN_UP"
@@ -133,7 +181,9 @@ reddit_ads_create_post(
 )
 ```
 
-> A **TEXT** post takes only `type` + `headline` + (via `input_data`) `post_url`, with an **empty** `content[]` — and again, can't back a CONVERSIONS ad. Use it only for awareness/engagement-style campaigns.
+> A **TEXT** post takes only `type` + `headline` (+ `body` on the structured tool), with an **empty** `content[]` on the legacy tool — and again, can't back a CONVERSIONS ad. Use it only for awareness/engagement-style campaigns.
+>
+> Posts are otherwise **immutable** — to change the headline, media, or destination, create a new (structured) post. Only comments can be toggled after creation: `reddit_ads_update_post(post_id=..., allow_comments=False, is_structured_post=True)`.
 
 ### 4. Create ad
 

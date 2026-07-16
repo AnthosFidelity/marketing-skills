@@ -48,17 +48,17 @@ TARGETING: Broad US, Advantage+ audience automation
 STATUS: PAUSED until you approve
 
 Steps:
-1. Select ad account (meta_ads_ad_accounts_list)
+1. Select ad account (meta_ads_adaccount_list)
 2. Get Page ID (meta_ads_owned_pages_list)
 3. Run health check (meta_ads_health_check)
 4. Screenshot skinfirst.com for creative reference (firecrawl_screenshots_create)
 5. Extract branding (firecrawl_branding_extract)
 6. Generate ad creative from screenshot
 7. Upload image → get image_hash (meta_ads_ad_images_upload)
-8. Create campaign → campaign_id (meta_ads_campaigns_create)
+8. Create campaign → campaign_id (meta_ads_campaign_create)
 9. Get Pixel ID → pixel_id (meta_ads_ad_pixels_list)
-10. Create ad set → adset_id (meta_ads_ad_sets_create)
-11. Create ad → ad_id (meta_ads_create)
+10. Create ad set → adset_id (meta_ads_adset_create)
+11. Create ad → ad_id (meta_ads_ad_create)
 12. Show ad previews — wait for your review
 13. Activate only when you say to
 
@@ -67,8 +67,8 @@ Key constraints:
 - promoted_object required: pixel_id + PURCHASE
 - targeting_automation inside targeting object
 - Budget at campaign level (ad set has no budget)
-- create_ad_set uses mode + input_data
-- create_ad uses single input_data dict
+- create_ad_set takes ad_account_id + body
+- create_ad takes ad_account_id + body
 - Will use meta_ads_campaigns_activate(), not update(status="ACTIVE")
 ```
 
@@ -79,7 +79,7 @@ Key constraints:
 ### Discovery
 
 ```python
-meta_ads_ad_accounts_list({"detail": "id_only"})
+meta_ads_adaccount_list({"detail": "id_only"})
 # → account: act_111222333
 
 meta_ads_owned_pages_list({"account_id": "act_111222333", "detail": "id_only"})
@@ -112,12 +112,14 @@ meta_ads_ad_images_upload({"account_id": "act_111222333", "image_url": "<generat
 
 ```python
 # Step 1: Campaign
-meta_ads_campaigns_create(
-    account_id="act_111222333",
-    name="Sales - SkinFirst - TEST - 2026-06",
-    objective="OUTCOME_SALES",
-    status="PAUSED",
-    daily_budget=3000    # $30/day in cents
+meta_ads_campaign_create(
+    ad_account_id="111222333",
+    body={
+        "name": "Sales - SkinFirst - TEST - 2026-06",
+        "objective": "OUTCOME_SALES",
+        "status": "PAUSED",
+        "daily_budget": 3000    # $30/day in cents
+    }
 )
 # → campaign_id: 987654321
 
@@ -126,10 +128,9 @@ meta_ads_ad_pixels_list(account_id="act_111222333")
 # → pixel_id: 9876543210
 
 # Step 3: Ad set
-meta_ads_ad_sets_create(
-    mode="advantage_plus",
-    input_data={
-        "account_id": "act_111222333",
+meta_ads_adset_create(
+    ad_account_id="111222333",
+    body={
         "name": "US Broad - Purchases - TEST",
         "campaign_id": "987654321",
         "optimization_goal": "OFFSITE_CONVERSIONS",
@@ -147,9 +148,9 @@ meta_ads_ad_sets_create(
 # → adset_id: 223344556
 
 # Step 4: Ad
-meta_ads_create(
-    input_data={
-        "account_id": "act_111222333",
+meta_ads_ad_create(
+    ad_account_id="111222333",
+    body={
         "name": "SkinFirst - Shop Clean Beauty - TEST",
         "adset_id": "223344556",
         "creative": {
@@ -200,5 +201,5 @@ When you're ready to go live, reply "activate" and I'll launch it.
 meta_ads_campaigns_activate(campaign_id="987654321")
 
 # WRONG — do not use this
-# meta_ads_campaigns_update(campaign_id="987654321", status="ACTIVE")
+# meta_ads_campaign_update(campaign_id="987654321", status="ACTIVE")
 ```

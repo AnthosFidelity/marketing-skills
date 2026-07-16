@@ -1,6 +1,11 @@
 ---
 name: customer-research
 description: Mine online communities and analyze existing assets to understand what customers actually think, say, and struggle with. Use when the user wants to do customer research, ICP research, voice-of-customer (VOC), review mining, Reddit mining, YouTube comment analysis, G2/Capterra scraping, build customer personas, map jobs to be done, understand churn reasons, or find authentic customer language for copy. Also use when given transcripts, surveys, or support tickets to synthesize.
+requires_toolkits:
+  - reddit_scraper
+  - outscraper_toolkit
+  - ecommerce_scraper
+  - twitter_scraper
 icon: apify
 short_description: Mine Reddit, YouTube, G2, X, and TikTok for what customers say in their own words.
 ---

@@ -1,6 +1,8 @@
 ---
 name: reddit-ads
 description: Plan and create Reddit Ads campaigns end-to-end via the Hyper MCP — campaign, ad group, ad build order with subreddit / interest / geo targeting, promoted posts, custom and saved audiences, Reddit pixel conversion tracking, and reporting, with micro-currency budgets. Use when the user wants to launch Reddit ads, promote a Reddit post, target subreddits, set up a Reddit pixel, or pull Reddit ad reports. Also triggers on reddit campaign, reddit ppc, or reddit ads manager.
+requires_toolkits:
+  - reddit_ads
 icon: reddit_ads
 short_description: Plan and create Reddit Ads with promoted posts, targeting, pixels, and reporting.
 ---
@@ -52,7 +54,9 @@ If `reddit_ads_get_me` / `reddit_ads_list_businesses` is not in the tool list, s
 
 > **CRITICAL** (post types): valid post `type` values are **`IMAGE`, `VIDEO`, `CAROUSEL`, `TEXT`** — **not `LINK`**. **`TEXT` posts are "free-form ads": they cannot carry a `click_url` and CANNOT be used in CONVERSIONS-campaign ads.** For any ad with a destination (especially CONVERSIONS), promote an **IMAGE / VIDEO / CAROUSEL** post.
 
-> **CRITICAL** (IMAGE/VIDEO posts): the media + CTA go in a **`content[]`** block (via `input_data`), not as top-level fields. An IMAGE post needs `content[].media_url` pointing to an **already-uploaded Reddit asset** — discover one with `reddit_ads_list_creative_assets(profile_id=...)`. `call_to_action` lives **inside `content[]`** and uses **display-label strings** (`"Sign Up"`, `"Learn More"`, `"Shop Now"`), NOT enum constants (`"SIGN_UP"`). TEXT posts must have an **empty** `content[]`.
+> **CRITICAL** (creating posts with new media): prefer **`reddit_ads_create_structured_post`** — it takes media as a **URL that Reddit downloads and re-hosts**, so it needs no pre-uploaded asset. Creation is an **async job**: the tool polls up to `wait_seconds` (default 45) and returns the job; on `status="SUCCESS"` use `job.post_id` as the ad's `post_id`, else poll `reddit_ads_get_structured_post_job`. IMAGE needs `media_url` + `destination_url`; VIDEO also needs `thumbnail_url`; CAROUSEL takes 1–6 `{image_url, destination_url, ...}` cards; `PROMOTED_POST` promotes an existing SFW community post by id. `call_to_action` is a **display label** (`"Sign Up"`, `"Learn More"`), never `"SIGN_UP"`. The legacy **`reddit_ads_create_post`** cannot fetch media by URL — its `content[].media_url` must reference an **already-uploaded** Reddit asset (`reddit_ads_list_creative_assets`), CTA lives **inside `content[]`**, and TEXT posts must have an **empty** `content[]`. Use the legacy tool only to reuse an existing asset.
+
+> **IMPORTANT**: Posts are **immutable** after creation except comments — to change headline/media/destination, create a new structured post. `reddit_ads_update_post(post_id=..., allow_comments=...)` only toggles comments (set `is_structured_post=True` for structured posts).
 
 ## Tool surface
 
@@ -62,13 +66,14 @@ If `reddit_ads_get_me` / `reddit_ads_list_businesses` is not in the tool list, s
 | Campaigns | `reddit_ads_list_campaigns`, `reddit_ads_get_campaign`, `reddit_ads_create_campaign`, `reddit_ads_update_campaign`, `reddit_ads_delete_campaign` |
 | Ad groups | `reddit_ads_list_ad_groups`, `reddit_ads_get_ad_group`, `reddit_ads_create_ad_group`, `reddit_ads_update_ad_group`, `reddit_ads_delete_ad_group` |
 | Ads | `reddit_ads_list_ads`, `reddit_ads_get_ad`, `reddit_ads_create_ad`, `reddit_ads_update_ad`, `reddit_ads_delete_ad` |
-| Posts & creative | `reddit_ads_list_profiles`, `reddit_ads_get_profile`, `reddit_ads_list_posts`, `reddit_ads_create_post`, `reddit_ads_get_post`, `reddit_ads_list_creative_assets`, `reddit_ads_get_creative_asset` |
+| Posts & creative | `reddit_ads_list_profiles`, `reddit_ads_get_profile`, `reddit_ads_list_posts`, `reddit_ads_create_post`, `reddit_ads_get_post`, `reddit_ads_update_post`, `reddit_ads_list_creative_assets`, `reddit_ads_get_creative_asset` |
+| Structured posts (media by URL) | `reddit_ads_create_structured_post`, `reddit_ads_get_structured_post_job`, `reddit_ads_list_structured_posts`, `reddit_ads_get_structured_post` |
 | Targeting | `reddit_ads_search_targeting`, `reddit_ads_suggest_keywords`, `reddit_ads_validate_keywords`, `reddit_ads_validate_geolocations` |
 | Audiences | `reddit_ads_list_custom_audiences`, `reddit_ads_create_custom_audience`, `reddit_ads_get_custom_audience`, `reddit_ads_delete_custom_audience`, `reddit_ads_update_custom_audience_users`, `reddit_ads_list_saved_audiences`, `reddit_ads_create_saved_audience`, `reddit_ads_get_saved_audience`, `reddit_ads_update_saved_audience` |
 | Pixels & Conversions API | `reddit_ads_list_pixels`, `reddit_ads_list_pixels_by_business`, `reddit_ads_post_conversion_events`, `reddit_ads_get_pixel_last_fired_at` |
-| Forecasting & access | `reddit_ads_generate_bid_suggestion`, `reddit_ads_get_feature_access` |
-| Apps / SKAdNetwork | `reddit_ads_list_apps`, `reddit_ads_get_skan_availability` |
-| Reporting | `reddit_ads_get_report` |
+| Forecasting & access | `reddit_ads_generate_bid_suggestion`, `reddit_ads_get_reach_forecast`, `reddit_ads_get_feature_access` |
+| Apps / SKAdNetwork | `reddit_ads_list_apps`, `reddit_ads_get_skan_availability`, `reddit_ads_get_app_last_fired_at_report` |
+| Reporting & history | `reddit_ads_get_report`, `reddit_ads_get_account_history` |
 
 > **All reference files live in `references/`.** Read them at `references/<file>` (e.g. `references/discovery.md`).
 
@@ -77,7 +82,8 @@ If `reddit_ads_get_me` / `reddit_ads_list_businesses` is not in the tool list, s
 | The user wants to… | Read these files first |
 |---|---|
 | Launch a Reddit campaign (any objective) | [references/discovery.md](references/discovery.md) → [references/campaign-creation.md](references/campaign-creation.md) |
-| Promote a post / create a post | [references/campaign-creation.md](references/campaign-creation.md) |
+| Promote a post / create a post (incl. media by URL) | [references/campaign-creation.md](references/campaign-creation.md) |
+| Forecast reach before launch | [references/discovery.md](references/discovery.md) |
 | Manage custom or saved audiences / resolve targeting | [references/audiences-and-targeting.md](references/audiences-and-targeting.md) |
 | Set up pixel / Conversions API tracking | [references/conversions-and-reporting.md](references/conversions-and-reporting.md) |
 | Pull reports / update or delete entities | [references/conversions-and-reporting.md](references/conversions-and-reporting.md) |
@@ -108,7 +114,9 @@ Discover business/account → audit account → research (objective, targeting, 
 | CONVERSIONS ad group: `"Conversion goal (optimization goal) is required"` / `"... is not valid for Conversions Campaigns"` | `optimization_goal` is required and, for non-CBO CONVERSIONS, must be `CLICKS` (SIGN_UP/PAGE_VISIT/PURCHASE are rejected for this campaign type). |
 | `"'LINK' is not one of [CAROUSEL, IMAGE, TEXT, VIDEO]"` | Post `type` must be IMAGE/VIDEO/CAROUSEL/TEXT — there is no LINK type. |
 | Ad create: `"Posts used for ads in Conversion campaigns cannot be free-form ad"` / `"Free form ads cannot have a click url"` | TEXT posts are free-form — use IMAGE/VIDEO/CAROUSEL for CONVERSIONS ads. |
-| IMAGE post: `"Image is required"` | Put the asset in `content[].media_url` (an already-uploaded Reddit asset from `list_creative_assets`); a `post_url` alone is not enough. |
+| IMAGE post: `"Image is required"` | With legacy `create_post`, put the asset in `content[].media_url` (an already-uploaded Reddit asset from `list_creative_assets`); a `post_url` alone is not enough. To create from a fresh media URL, use `reddit_ads_create_structured_post` instead. |
+| Structured post job not done yet (`status` `QUEUED`/`PROCESSING`) | Creation is async; the create tool polls to `wait_seconds` (default 45). If still pending, poll `reddit_ads_get_structured_post_job(post_creation_job_id=...)` until `SUCCESS` (then use `post_id`) or `CLIENT_ERROR`/`SERVER_ERROR` (read `error_message`). |
+| Need to change a post's headline/media/destination | Not possible — posts are immutable. Create a new structured post. `reddit_ads_update_post` only toggles `allow_comments`. |
 | Post: `call_to_action "Additional fields not permitted"` | `call_to_action` belongs **inside `content[]`**, not top-level, and uses display labels (`"Sign Up"`), not enum constants (`"SIGN_UP"`). |
 | TEXT post: `"Post content must be empty for this post type"` | TEXT posts can't carry a `content[]` block — only IMAGE/VIDEO/CAROUSEL do. |
 | Dollar amounts | Always micro-currency (×1,000,000). |

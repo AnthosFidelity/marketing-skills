@@ -10,11 +10,11 @@ Use this for querying performance data, ad-level insights, and historical report
 |---|---|
 | User asks for a performance check or trend | Cached data first (faster, no rate limits) |
 | User needs fields not in the cache | Meta API insights tools |
-| Cache is stale or user explicitly requests fresh data | Call `meta_business_sync`, then query cache |
+| Cache is stale or user explicitly requests fresh data | Use live API tools (`meta_ads_insights_get`) for the fresh numbers; the platform sync refreshes the cache on its own schedule |
 | No cached data exists yet for this account | Meta API as fallback |
 | Campaign was just created in this session | Meta API directly — new campaigns are NOT in cache yet |
 
-> **Important**: The cache is not real-time. If the user just created a campaign in this conversation, it won't appear in cached data. Use `meta_ads_insights_get` or `meta_ads_campaigns_get` directly for anything created in the current session.
+> **Important**: The cache is not real-time. If the user just created a campaign in this conversation, it won't appear in cached data. Use `meta_ads_insights_get` or `meta_ads_campaign_get` directly for anything created in the current session.
 
 > **Check the cache's latest date before trusting it for a recent window.** The cache can lag by weeks or months. If the user asks for "last 30 days" but the cache's most recent row is older than that window, the cache cannot answer the question — go straight to `meta_ads_insights_get` for live data. Always confirm the max date in the cache (e.g. `SELECT MAX(date_start) FROM <table>`) before relying on it for a time-bounded request.
 
@@ -161,13 +161,13 @@ Prefer cached data for reporting and dashboards. Use the Meta API directly only 
 
 Data syncs automatically every 30 minutes.
 
-If the data appears stale or the user requests a refresh: call `meta_business_sync` with no parameters. This is a background operation — do not wait for completion.
+If the data appears stale or the user requests a refresh: pull the fresh numbers live with `meta_ads_insights_get` and tell the user the cached tables refresh automatically on the platform sync schedule (~30 minutes). There is no manual sync tool.
 
 ---
 
 ## Replicating an existing campaign (analyze → create)
 
-When the task is "find the best performer and build a new campaign modelled on it," inspect the source with `meta_ads_campaigns_get` and `meta_ads_ad_sets_list`, then build the new campaign via the matching objective workflow ([discovery.md](discovery.md) → relevant `campaigns/<objective>.md`).
+When the task is "find the best performer and build a new campaign modelled on it," inspect the source with `meta_ads_campaign_get` and `meta_ads_adset_list`, then build the new campaign via the matching objective workflow ([discovery.md](discovery.md) → relevant `campaigns/<objective>.md`).
 
 > **`get_ad_sets` often returns `promoted_object: null` (and `bid_amount`/`bid_strategy: null`) even when the source ad set actually uses pixel tracking.** Do not assume the source had no pixel just because the GET response shows null. When replicating a sales or leads campaign, re-derive `promoted_object` yourself: look up the pixel with `meta_ads_ad_pixels_list`, infer the `custom_event_type` from the conversion events visible in the source's insights (e.g. PURCHASE, LEAD, COMPLETE_REGISTRATION), and set it explicitly on the new ad set per the objective workflow.
 
@@ -177,10 +177,10 @@ Carry forward from the source: objective, targeting (age/geo/advantage_audience)
 
 For "duplicate this campaign exactly but with new creatives":
 
-1. **Read the source structure**: `meta_ads_campaigns_get`, `meta_ads_ad_sets_list`, `meta_ads_list`. For the creative, `meta_ads_ad_creatives_get` (the list view shows `link_url: null` — get the full creative to see the real destination).
+1. **Read the source structure**: `meta_ads_campaign_get`, `meta_ads_adset_list`, `meta_ads_ad_list`. For the creative, `meta_ads_creative_get` (the list view shows `link_url: null` — get the full creative to see the real destination).
 2. **Recreate** campaign → ad set → ad via the matching objective workflow, copying objective, targeting, and budget mode. Re-derive `promoted_object` (see warning above). Name the new campaign as the user specified.
-3. **Swap creatives**: upload the new images (`meta_ads_ad_images_upload`), then either build a fresh inline `object_story_spec` on the new ad or create new creatives with `meta_ads_ad_creatives_create` and attach by `creative_id`.
-4. **Verify before deleting anything**: confirm the new ads were created and the new creatives are attached (`meta_ads_list` / `meta_ads_ad_creatives_get`).
-5. **Only then** delete old draft creatives with `meta_ads_ad_creatives_delete` (or `meta_ads_delete` for ads). Never delete the source until the replacement is confirmed.
+3. **Swap creatives**: upload the new images (`meta_ads_ad_images_upload`), then either build a fresh inline `object_story_spec` on the new ad or create new creatives with `meta_ads_creative_create` and attach by `creative_id`.
+4. **Verify before deleting anything**: confirm the new ads were created and the new creatives are attached (`meta_ads_ad_list` / `meta_ads_creative_get`).
+5. **Only then** delete old draft creatives with `meta_ads_creative_delete` (or `meta_ads_ad_delete` for ads). Never delete the source until the replacement is confirmed.
 
 Leave the new campaign PAUSED unless the user said to activate.

@@ -11,8 +11,8 @@ Re-read [../constraints.md](../constraints.md). Every rule there applies here. M
 - `promoted_object` required for OUTCOME_SALES
 - `targeting_automation` inside `targeting`
 - Budget at campaign level for Advantage+
-- `meta_ads_ad_sets_create` uses `mode` + `input_data` — all fields inside `input_data`
-- `meta_ads_create` takes a single `input_data` dict — no separate top-level args
+- `meta_ads_adset_create` takes `ad_account_id` (numeric, no `act_` prefix) + a `body` dict — all ad set fields inside `body`
+- `meta_ads_ad_create` takes `ad_account_id` + a `body` dict — no separate top-level args
 - Use `meta_ads_campaigns_activate()`, not `update_campaign(status="ACTIVE")`
 
 ---
@@ -64,12 +64,14 @@ Use this for most campaigns. Each step is visible, failures are easy to diagnose
 ### 1. Create campaign
 
 ```python
-meta_ads_campaigns_create(
-    account_id="act_123456789",
-    name="Sales - [Business] - [Date]",
-    objective="OUTCOME_SALES",
-    status="PAUSED",
-    daily_budget=2000    # $20/day in cents — Advantage+ only; omit for manual
+meta_ads_campaign_create(
+    ad_account_id="123456789",
+    body={
+        "name": "Sales - [Business] - [Date]",
+        "objective": "OUTCOME_SALES",
+        "status": "PAUSED",
+        "daily_budget": 2000    # $20/day in cents — Advantage+ only; omit for manual
+    }
 )
 ```
 
@@ -85,22 +87,27 @@ meta_ads_ad_pixels_list(account_id="act_123456789")
 
 ### 3. Create ad set
 
-> `meta_ads_ad_sets_create` uses a `mode` + `input_data` pattern. Every ad set field goes inside `input_data`.
+> `meta_ads_adset_create` takes `ad_account_id` (numeric, no `act_` prefix) plus a `body` dict. Every ad set field goes inside `body`.
 
 **Advantage+ (default):**
 
 ```json
 {
-  "mode": "advantage_plus",
-  "input_data": {
-    "account_id": "act_123456789",
+  "ad_account_id": "123456789",
+  "body": {
     "name": "US Broad - Purchases",
     "campaign_id": "<campaign_id>",
     "optimization_goal": "OFFSITE_CONVERSIONS",
     "billing_event": "IMPRESSIONS",
     "targeting": {
-      "geo_locations": {"countries": ["US"]},
-      "targeting_automation": {"advantage_audience": 1}
+      "geo_locations": {
+        "countries": [
+          "US"
+        ]
+      },
+      "targeting_automation": {
+        "advantage_audience": 1
+      }
     },
     "promoted_object": {
       "pixel_id": "<pixel_id>",
@@ -120,19 +127,24 @@ meta_ads_ad_pixels_list(account_id="act_123456789")
 
 ```json
 {
-  "mode": "manual",
-  "input_data": {
-    "account_id": "act_123456789",
+  "ad_account_id": "123456789",
+  "body": {
     "name": "US Women 25-44",
     "campaign_id": "<campaign_id>",
     "optimization_goal": "OFFSITE_CONVERSIONS",
     "billing_event": "IMPRESSIONS",
     "daily_budget": 2000,
     "targeting": {
-      "geo_locations": {"countries": ["US"]},
+      "geo_locations": {
+        "countries": [
+          "US"
+        ]
+      },
       "age_min": 25,
       "age_max": 44,
-      "genders": [2]
+      "genders": [
+        2
+      ]
     },
     "promoted_object": {
       "pixel_id": "<pixel_id>",
@@ -157,18 +169,18 @@ meta_ads_ad_images_upload(
 
 ### 5. Create ad
 
-> **CRITICAL**: `meta_ads_create` takes a **single `input_data` dict** containing all fields. Do not pass `account_id`, `name`, `adset_id` as separate top-level arguments and do not pass `input_data` as a JSON string.
+> **CRITICAL**: `meta_ads_ad_create` takes `ad_account_id` plus a single `body` dict containing all ad fields. Do not pass `name` or `adset_id` as separate top-level arguments and do not pass `body` as a JSON string.
 
 ```
-❌ WRONG: meta_ads_create(account_id="act_...", adset_id="123", name="My Ad")
-❌ WRONG: meta_ads_create(input_data='{"account_id": "act_..."}')
-✅ RIGHT:  meta_ads_create(input_data={"account_id": "act_...", "adset_id": "123", ...})
+❌ WRONG: meta_ads_ad_create(account_id="act_...", adset_id="123", name="My Ad")
+❌ WRONG: meta_ads_ad_create(ad_account_id="...", body='{"adset_id": "123"}')  # string not dict
+✅ RIGHT:  meta_ads_ad_create(ad_account_id="111222333", body={"adset_id": "123", ...})
 ```
 
 ```json
 {
-  "input_data": {
-    "account_id": "act_123456789",
+  "ad_account_id": "123456789",
+  "body": {
     "name": "Sales Ad - [Creative Name]",
     "adset_id": "<adset_id>",
     "creative": {
@@ -177,7 +189,9 @@ meta_ads_ad_images_upload(
         "link_data": {
           "link": "https://example.com/shop",
           "image_hash": "<image_hash>",
-          "call_to_action": {"type": "SHOP_NOW"},
+          "call_to_action": {
+            "type": "SHOP_NOW"
+          },
           "message": "<primary_text>",
           "name": "<headline>",
           "description": "<description>"
@@ -202,21 +216,21 @@ meta_ads_ad_previews_get(creative_ids=["<creative_id>"])
 
 meta_ads_campaigns_activate(campaign_id="<campaign_id>")
 # Activates campaign + ad sets + ads together
-# NOT: meta_ads_campaigns_update(status="ACTIVE") — that leaves ad sets PAUSED
+# NOT: meta_ads_campaign_update(status="ACTIVE") — that leaves ad sets PAUSED
 ```
 
 ---
 
 ## Other creative formats (step 5 variations)
 
-The single-image `object_story_spec` above is the most common. `meta_ads_create` also supports carousel and dynamic creative natively — just change the `creative` block.
+The single-image `object_story_spec` above is the most common. `meta_ads_ad_create` also supports carousel and dynamic creative natively — just change the `creative` block.
 
 **Carousel** (2–10 cards) — use `child_attachments` inside `link_data`:
 
 ```json
 {
-  "input_data": {
-    "account_id": "act_123456789",
+  "ad_account_id": "123456789",
+  "body": {
     "name": "Sales Carousel Ad",
     "adset_id": "<adset_id>",
     "creative": {
@@ -226,8 +240,18 @@ The single-image `object_story_spec` above is the most common. `meta_ads_create`
           "link": "https://example.com/shop",
           "message": "Browse our collection",
           "child_attachments": [
-            {"link": "https://example.com/p1", "name": "Product 1", "description": "Desc 1", "image_hash": "<hash1>"},
-            {"link": "https://example.com/p2", "name": "Product 2", "description": "Desc 2", "image_hash": "<hash2>"}
+            {
+              "link": "https://example.com/p1",
+              "name": "Product 1",
+              "description": "Desc 1",
+              "image_hash": "<hash1>"
+            },
+            {
+              "link": "https://example.com/p2",
+              "name": "Product 2",
+              "description": "Desc 2",
+              "image_hash": "<hash2>"
+            }
           ],
           "multi_share_optimized": true
         }
@@ -241,20 +265,55 @@ The single-image `object_story_spec` above is the most common. `meta_ads_create`
 
 ```json
 {
-  "input_data": {
-    "account_id": "act_123456789",
+  "ad_account_id": "123456789",
+  "body": {
     "name": "Sales Dynamic Ad",
     "adset_id": "<adset_id>",
     "creative": {
-      "object_story_spec": {"page_id": "<page_id>"},
+      "object_story_spec": {
+        "page_id": "<page_id>"
+      },
       "asset_feed_spec": {
-        "images": [{"hash": "<hash1>"}, {"hash": "<hash2>"}],
-        "titles": [{"text": "Headline A"}, {"text": "Headline B"}],
-        "bodies": [{"text": "Copy option 1"}, {"text": "Copy option 2"}],
-        "descriptions": [{"text": "Free shipping over $40"}],
-        "link_urls": [{"website_url": "https://example.com/shop"}],
-        "call_to_action_types": ["SHOP_NOW"],
-        "ad_formats": ["SINGLE_IMAGE"]
+        "images": [
+          {
+            "hash": "<hash1>"
+          },
+          {
+            "hash": "<hash2>"
+          }
+        ],
+        "titles": [
+          {
+            "text": "Headline A"
+          },
+          {
+            "text": "Headline B"
+          }
+        ],
+        "bodies": [
+          {
+            "text": "Copy option 1"
+          },
+          {
+            "text": "Copy option 2"
+          }
+        ],
+        "descriptions": [
+          {
+            "text": "Free shipping over $40"
+          }
+        ],
+        "link_urls": [
+          {
+            "website_url": "https://example.com/shop"
+          }
+        ],
+        "call_to_action_types": [
+          "SHOP_NOW"
+        ],
+        "ad_formats": [
+          "SINGLE_IMAGE"
+        ]
       }
     }
   }
@@ -264,7 +323,7 @@ The single-image `object_story_spec` above is the most common. `meta_ads_create`
 > Dynamic creative requirements:
 > - `ad_formats` is **required** — use `["SINGLE_IMAGE"]` (or `["SINGLE_VIDEO"]` for video). Omitting it makes Meta default to SINGLE_IMAGE and reject a feed that carries video.
 > - Keep a minimal `object_story_spec` with just `page_id` alongside `asset_feed_spec` (the page_id comes from there).
-> - The ad set must be created with `is_dynamic_creative: true` — pass it to `meta_ads_ad_sets_create`.
+> - The ad set must be created with `is_dynamic_creative: true` — pass it to `meta_ads_adset_create`.
 >
 > For non-dynamic ads, `creative` uses a single `object_story_spec` (or `creative_id` to reuse an existing creative).
 
@@ -276,8 +335,8 @@ The single-image `object_story_spec` above is the most common. `meta_ads_create`
 |---|---|---|
 | Cryptic API error on ad set creation | Missing `promoted_object` | Add `pixel_id` + `custom_event_type` to ad set |
 | Budget rejected | Passed dollars not cents | Multiply by 100 |
-| Ad set error: unexpected argument | Fields passed outside `input_data` | All fields must be inside `input_data` dict |
-| Ad creation error | Separate top-level args used | Use single `input_data` dict |
+| Ad set error: unexpected argument | Fields passed outside `body` | All fields must be inside the `body` dict |
+| Ad creation error | Separate top-level args used | Use `ad_account_id` + `body` |
 | Campaign ACTIVE but nothing serves | Used `update_campaign(status="ACTIVE")` | Use `meta_ads_campaigns_activate()` |
 | "Bid amount required" | Optimization goal requires explicit bid | Do NOT change goal — ask user |
 | `targeting_automation` error | Placed at ad set top level | Move inside `targeting` object |

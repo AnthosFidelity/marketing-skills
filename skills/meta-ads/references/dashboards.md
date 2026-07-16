@@ -16,7 +16,7 @@ Build the dashboard using `hyper_data_build_dashboard` with `tool_data_sources` 
 
 ### 3. Cache refresh policy
 
-Data syncs automatically every 30 minutes. If data is stale or the user requests a refresh, call `meta_business_sync` with no parameters. This is a background refresh — do not wait for completion.
+Data syncs automatically every 30 minutes. If data is stale or the user needs up-to-the-minute numbers, pull them live with `meta_ads_insights_get`; there is no manual sync tool.
 
 If no cached data exists yet, use Meta API tools directly as a fallback and cache the results.
 
