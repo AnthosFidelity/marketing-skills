@@ -15,7 +15,7 @@ dashboards.
 
 - `customer_id` (required).
 
-Use the GAQL below through `google_ads_execute_gaql` when you need
+Use the GAQL below through `google_ads_gaql_query` when you need
 conversion-action metadata. This is separate from campaign-level
 conversion metrics, which use `segments.conversion_action*`.
 
@@ -54,7 +54,7 @@ result = hyper_data_build_dashboard(
     name="Conversion Tracking Audit",
     tool_data_sources={
         "raw": {
-            "tool_name": "google_ads_execute_gaql",
+            "tool_name": "google_ads_gaql_query",
             "tool_args": {
                 "customer_id": "123-456-7890",
                 "query": (

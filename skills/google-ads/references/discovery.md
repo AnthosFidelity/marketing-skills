@@ -1,10 +1,10 @@
 # Discovery, research, and consultation
 
-Every campaign build starts here. Do not skip any phase — the pre-creation summary at the end must be approved before any blueprint is built.
+Every campaign build starts here. Do not skip any phase — the pre-creation summary at the end must be approved before anything is created.
 
 ## Phase 1: Initial Setup
 
-Call `google_ads_list_accounts()` to list accessible accounts.
+Call `google_ads_accounts_list()` to list accessible accounts.
 
 - If multiple: ask the user to select one.
 - If single: inform the user and proceed.
@@ -27,7 +27,7 @@ google_ads_diagnose_conversion_tracking(customer_id="<from list_accounts>")
 
 This returns all conversion actions, their status, and any tracking signal issues in one call. If the user's MCP doesn't expose `google_ads_diagnose_conversion_tracking`, fall back to GAQL:
 ```
-google_ads_execute_gaql(
+google_ads_gaql_query(
   customer_id="<from list_accounts>",
   query="""
     SELECT conversion_action.id, conversion_action.name,
@@ -38,7 +38,7 @@ google_ads_execute_gaql(
 )
 ```
 
-> **`google_ads_execute_gaql` vs `google_ads_run_gaql`:** `execute_gaql` works on manager accounts (MCC) and sub-accounts. `run_gaql` is only available on non-manager accounts. Use `execute_gaql` consistently — it works everywhere.
+> **`google_ads_gaql_query` vs `google_ads_run_gaql`:** `execute_gaql` works on manager accounts (MCC) and sub-accounts. `run_gaql` is only available on non-manager accounts. Use `execute_gaql` consistently — it works everywhere.
 
 ### Market & Keyword Research
 - Inspect SERPs, competitors, and themes.
@@ -57,7 +57,7 @@ Act as a partner, not order-taker:
 - Present findings (site + GAQL + market).
 - Recommend bidding (default Smart Bidding when tracking exists) with trade-offs.
 - Propose structure (campaign → themed ad groups → keywords + match types).
-- Suggest locations via `google_ads_search_locations(customer_id="...", location_names="New York")`. Note: `location_names` is a single string, not an array — pass a city, state, country, or postal code and the tool returns matching geo target IDs.
+- Suggest locations via `google_ads_locations_search(customer_id="...", location_names="New York")`. Note: `location_names` is a single string, not an array — pass a city, state, country, or postal code and the tool returns matching geo target IDs.
 - Set budget expectations via benchmark ranges.
 - Show reasoning for each choice.
 

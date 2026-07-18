@@ -21,7 +21,7 @@ to keep claims tied to the queried data; they are not optimization rules.
 
 ## Optional dashboard/data app rules
 
-- Use `google_ads_execute_gaql` inside `tool_data_sources`.
+- Use `google_ads_gaql_query` inside `tool_data_sources`.
 - Query the saved cache table with `sql_data_sources`.
 - Bind only SQL output variables inside the dashboard/data app code.
 - Return the persisted dashboard artifact as the final output only when the

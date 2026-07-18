@@ -33,10 +33,10 @@ Re-check this file at each creation step.
 
 - Budget in micros: $50 → 50,000,000.
 - Create PAUSED; activate only after approval.
-- Location resolution: use `location_names` in blueprint (auto-resolved) or `google_ads_search_locations` for manual lookup.
+- Location resolution: `google_ads_locations_search` to resolve names, then `google_ads_location_targets_add`.
 - RSA limits: headlines ≤30 chars (min 3), descriptions ≤90 chars (min 2).
 - Creative source: only from the actual site; no generic claims.
-- Image assets must already exist in the account (use `google_ads_list_assets` to find them).
+- Image assets must already exist in the account (use `google_ads_assets_list` to find them).
 
 ## Critical Safety Rules
 
