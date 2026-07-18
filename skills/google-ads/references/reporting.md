@@ -4,7 +4,7 @@ Report on existing Google Ads accounts using GAQL-backed data. Dashboards and da
 
 ## Core contract
 
-- Use `google_ads_execute_gaql` as the canonical Google Ads data tool.
+- Use `google_ads_gaql_query` as the canonical Google Ads data tool.
 - Written GAQL-backed reports are valid outputs. Build a dashboard or data app only when the user asks for one or when an interactive view materially improves the answer.
 - Do not use the alternate GAQL alias (`google_ads_run_gaql`) in new examples — `execute_gaql` works on both manager and sub-accounts.
 - Treat rows as evidence, not as automatic recommendations ([heuristics.md](heuristics.md)).
@@ -13,7 +13,7 @@ Report on existing Google Ads accounts using GAQL-backed data. Dashboards and da
 
 ## Phase 1: Access and scope
 
-1. Call `google_ads_list_accounts()` before touching account data.
+1. Call `google_ads_accounts_list()` before touching account data.
 2. Confirm the customer ID if more than one account is available.
 3. Confirm the reporting window if the user has not given one.
 4. If the user did not ask for a dashboard/data app and the best output is unclear, ask whether they want a written report or an interactive view.
@@ -86,7 +86,7 @@ Before authoring a custom dashboard:
 
 The implementation pattern is:
 
-1. `tool_data_sources` — the report's GAQL runs through `google_ads_execute_gaql` and the rows are saved to a cache table (convention: `gads_<report>_<scope>`).
+1. `tool_data_sources` — the report's GAQL runs through `google_ads_gaql_query` and the rows are saved to a cache table (convention: `gads_<report>_<scope>`).
 2. `sql_data_sources` — re-aggregate the cache table into named variables (KPIs, time series, top lists).
 3. Build the interface with cards, KPIs, charts, tables, and a clear visual hierarchy. Bind only SQL output variables inside the dashboard/data app code.
 4. `refresh` — set `{"mode": "scheduled", "cron": "0 * * * *"}` to keep the dashboard live; default is manual.
@@ -96,7 +96,7 @@ hyper_data_build_dashboard(
     name="Google Ads Report",
     tool_data_sources={
         "raw": {
-            "tool_name": "google_ads_execute_gaql",
+            "tool_name": "google_ads_gaql_query",
             "tool_args": {"customer_id": "...", "query": "..."},
             "cache_table": "gads_report_raw",
             "mode": "replace",

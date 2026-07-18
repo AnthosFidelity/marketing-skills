@@ -1,47 +1,40 @@
-# Performance Max campaigns (blueprint)
+# Performance Max campaigns (granular build)
 
-> **CRITICAL**: Always use the blueprint system for campaign creation. It validates locally, fills smart defaults, resolves locations, and rolls back on failure. Workflow: build blueprint → **preview** → explicit user approval → **create** ([discovery.md](../discovery.md) must be complete and the summary approved first).
+> **CRITICAL**: Present the full plan and get explicit user approval before the first mutate ([discovery.md](../discovery.md) must be complete and the summary approved). PMax campaigns MUST be created **PAUSED** — they need at least one asset group before they can serve, and the create tool enforces this.
 
-## Performance Max Campaigns
+## Build order
 
-**Preview**: `google_ads_preview_pmax_blueprint(blueprint={...})`
-**Create**: `google_ads_create_from_pmax_blueprint(blueprint={...})`
+1. **Budget** — `google_ads_campaign_budgets_create(customer_id, body={"name": "...", "amount_micros": 50000000})`. PMax budgets must not be shared.
+2. **Campaign** — `google_ads_campaigns_create(customer_id, body={...})`:
 
 ```json
 {
-  "customer_id": "1234567890",
   "name": "PMax Campaign",
-  "budget_amount_micros": 50000000,
-  "bidding_strategy": "MAXIMIZE_CONVERSIONS",
+  "advertising_channel_type": "PERFORMANCE_MAX",
   "status": "PAUSED",
-  "location_names": ["United States"],
-  "conversion_action_ids": ["1234567890"],
-  "asset_groups": [
-    {
-      "name": "Asset Group 1",
-      "headlines": ["Headline 1", "Headline 2", "Headline 3"],
-      "long_headlines": ["Longer headline up to 90 characters"],
-      "descriptions": ["Description 1", "Description 2"],
-      "business_name": "Business Name",
-      "final_urls": ["https://example.com"],
-      "marketing_image_asset_ids": ["1234567890"],
-      "square_marketing_image_asset_ids": ["1234567891"],
-      "logo_asset_ids": ["1234567892"]
-    }
-  ]
+  "campaign_budget": "customers/1234567890/campaignBudgets/111",
+  "maximize_conversions": {}
 }
 ```
 
-> **CRITICAL (PMax)**: All three image asset types are REQUIRED with correct aspect ratios. The preview tool validates ratios before creation.
+   Do NOT set `network_settings` or manual bidding — PMax serves across all networks automatically and only accepts `maximize_conversions` / `maximize_conversion_value` (optionally with `target_cpa` / `target_roas` inside the scheme). The validator rejects anything else.
+3. **Locations** — `google_ads_locations_search` → `google_ads_location_targets_add`.
+4. **Image assets** — `google_ads_image_assets_upload` (prefer `file_id` from the workspace file manager). Required ratios: landscape 1.91:1, square 1:1, logo 1:1 (or 4:1).
+5. **Asset group** — `google_ads_asset_groups_create` (atomic: creates the asset group, its text assets, and all links in ONE API call, which the API requires):
+
+   Required: `customer_id`, `campaign_id`, `final_urls`, `headlines` (3–15, ≤30 chars), `long_headlines` (1+, ≤90), `descriptions` (2+, ≤90), `business_name`, and all three image asset ID lists (`marketing_image_asset_ids`, `square_marketing_image_asset_ids`, `logo_asset_ids`).
+6. **Optional video** — register a YouTube video with `google_ads_video_assets_link(customer_id, youtube_video_id)`, then link it to the asset group with `google_ads_asset_group_assets_link(field_type="YOUTUBE_VIDEO")`. Without one, Google auto-generates video from your assets.
 
 ## Standalone PMax asset group (existing campaign)
 
-Use `google_ads_asset_groups_create` (legacy name `google_ads_create_asset_group`) to add an asset group to an **existing** Performance Max campaign without running the full blueprint flow.
-
-Required: `customer_id`, `campaign_id`, `final_urls`, text assets (`headlines`, `long_headlines`, `descriptions`, `business_name`), and all three image asset ID lists.
+`google_ads_asset_groups_create` also adds asset groups to existing PMax campaigns — same required fields as step 5.
 
 ## Campaign dates (API v24)
 
-Optional `start_date` / `end_date` on blueprints and campaign tools use `YYYY-MM-DD`. The backend encodes them to v24 wire fields `startDateTime` / `endDateTime` (`yyyy-MM-dd HH:mm:ss`). Omit both dates to let Google set schedule defaults.
+Optional `start_date` / `end_date` use `YYYY-MM-DD`. The backend encodes them to v24 wire fields `startDateTime` / `endDateTime`. Omit both to let Google set schedule defaults.
 
-Re-check [constraints.md](../constraints.md) (blueprint features, bidding strategies, technical rules) at each creation step.
+## Verify, then activate
+
+Confirm by GAQL (campaign + asset_group + asset_group_asset), present to the user, and only set `status: "ENABLED"` via `google_ads_campaigns_update` after explicit approval.
+
+Re-check [constraints.md](../constraints.md) at each creation step.

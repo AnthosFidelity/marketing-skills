@@ -110,7 +110,7 @@ result = hyper_data_build_dashboard(
     name="Lead-Gen Funnel",
     tool_data_sources={
         "raw_conversions": {
-            "tool_name": "google_ads_execute_gaql",
+            "tool_name": "google_ads_gaql_query",
             "tool_args": {
                 "customer_id": "123-456-7890",
                 "query": (
@@ -127,7 +127,7 @@ result = hyper_data_build_dashboard(
             "mode": "replace",
         },
         "raw_cost": {
-            "tool_name": "google_ads_execute_gaql",
+            "tool_name": "google_ads_gaql_query",
             "tool_args": {
                 "customer_id": "123-456-7890",
                 "query": (

@@ -3,7 +3,7 @@
 When a user provides a manager account (MCC) with multiple sub-accounts:
 
 ## Batching Rule
-**Never query more than 5 sub-accounts in a single run.** Each `google_ads_execute_gaql` call goes through a proxy with a timeout. Querying 10+ accounts sequentially in one loop reliably causes 504 timeouts.
+**Never query more than 5 sub-accounts in a single run.** Each `google_ads_gaql_query` call goes through a proxy with a timeout. Querying 10+ accounts sequentially in one loop reliably causes 504 timeouts.
 
 Process in batches of 5 and aggregate results before proceeding:
 ```
@@ -16,7 +16,7 @@ Batch 3: accounts[10:15] → collect results
 Announce progress to the user: `"Processing accounts 1-5 of 23..."`.
 
 ## 504 Timeout Recovery
-If a `google_ads_execute_gaql` call times out (504 / "Google Ads API timed out after retries"):
+If a `google_ads_gaql_query` call times out (504 / "Google Ads API timed out after retries"):
 1. The tool already retries 3× internally — do not retry immediately.
 2. Reduce the scope: narrow the date range, add a `LIMIT`, or split the account list further.
 3. Tell the user which accounts succeeded and which failed; do not silently drop accounts.
@@ -26,7 +26,7 @@ If a `google_ads_execute_gaql` call times out (504 / "Google Ads API timed out a
 For MCC search term reports across many sub-accounts:
 
 ```
-1. Get all accounts: google_ads_list_accounts()
+1. Get all accounts: google_ads_accounts_list()
    Filter to sub-accounts: [a for a in result.accounts if not a["manager"]]
 2. For each batch of 5 accounts:
    - Run search_term_view GAQL (using segments.keyword.info.*, NOT ad_group_criterion).

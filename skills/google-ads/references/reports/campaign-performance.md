@@ -17,7 +17,7 @@ reports when an issue surfaces.
 - `date_range` (default: `LAST_30_DAYS`).
 - Optional: `campaign_ids` filter.
 
-Use the GAQL below through `google_ads_execute_gaql` for both ad-hoc
+Use the GAQL below through `google_ads_gaql_query` for both ad-hoc
 reporting and refreshable dashboards.
 
 ## GAQL
@@ -57,7 +57,7 @@ result = hyper_data_build_dashboard(
     name="Campaign Performance",
     tool_data_sources={
         "raw": {
-            "tool_name": "google_ads_execute_gaql",
+            "tool_name": "google_ads_gaql_query",
             "tool_args": {
                 "customer_id": "123-456-7890",
                 "query": (
